@@ -14,8 +14,9 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	fuel::graphics::GLWindow window({1280, 720, false, true});
-
 	fuel::graphics::GLVertexArray vao(3);
+
+	// Positions
 	vao.getAttributeList(0).write(GL_STATIC_DRAW, 3, GL_FLOAT, std::vector<float>
 	{
 		-1, 1, 0,
@@ -23,6 +24,8 @@ int main(int argc, char **argv)
 		 1,-1, 0,
 		-1,-1, 0,
 	});
+
+	// RGB colors
 	vao.getAttributeList(1).write(GL_STATIC_DRAW, 3, GL_FLOAT, std::vector<float>
 	{
 		1, 0, 0,
@@ -30,6 +33,8 @@ int main(int argc, char **argv)
 		0, 0, 1,
 		1, 1, 0,
 	});
+
+	// Normals
 	vao.getAttributeList(2).write(GL_STATIC_DRAW, 3, GL_FLOAT, std::vector<float>
 	{
 		0, 0, 1,
@@ -37,10 +42,6 @@ int main(int argc, char **argv)
 		0, 0, 1,
 		0, 0, 1,
 	});
-
-	cout << vao.getAttributeList(0).getBuffer().getElementCount<float>() << endl;
-	cout << vao.getAttributeList(1).getBuffer().getElementCount<float>() << endl;
-	cout << vao.getAttributeList(2).getBuffer().getElementCount<float>() << endl;
 
 	while(!window.closed())
 	{
