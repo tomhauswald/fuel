@@ -1,8 +1,8 @@
 /*****************************************************************
- **' GLVertexArray.h
+ * GLVertexArray.h
  *****************************************************************
- **' Created on: 11.06.2015
- **' Author: HAUSWALD, Tom.
+ * Created on: 11.06.2015
+ * Author: HAUSWALD, Tom.
  *****************************************************************
  *****************************************************************/
 
@@ -52,10 +52,15 @@ namespace fuel
 				inline GLAttributeList &getAttributeList(uint8_t id){ return *m_attributeLists[id]; }
 
 				/**
-				 * Bind this vertex array object in order to use it.
+				 * Binds a vertex array object in order to use it.
 				 * Also enables all attribute lists.
 				 */
-				void bind(void);
+				static void bind(const GLVertexArray &vao);
+
+				/**
+				 * Unbinds any vertex array.
+				 */
+				static inline void unbind(void){ glBindVertexArray(GL_NONE); }
 
 				/**
 				 * Delete the underlying OpenGL VAO.

@@ -1,8 +1,8 @@
 /*****************************************************************
- **' GLWindow.h
+ * GLWindow.h
  *****************************************************************
- **' Created on: 11.06.2015
- **' Author: HAUSWALD, Tom.
+ * Created on: 11.06.2015
+ * Author: HAUSWALD, Tom.
  *****************************************************************
  *****************************************************************/
 
@@ -64,6 +64,11 @@ namespace fuel
 			 * @return Height of the window in pixels.
 			 */
 			uint16_t getHeight(void) const;
+
+			/**
+			 * Tells the window to close.
+			 */
+			inline void close(void){ glfwSetWindowShouldClose(m_pWindow, GL_TRUE); }
 
 			/**
 			 * Prepares the window to draw the next frame.

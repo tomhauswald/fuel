@@ -1,8 +1,8 @@
 /*****************************************************************
- **' GLAttributeList.h
+ * GLAttributeList.h
  *****************************************************************
- **' Created on: 11.06.2015
- **' Author: HAUSWALD, Tom.
+ * Created on: 11.06.2015
+ * Author: HAUSWALD, Tom.
  *****************************************************************
  *****************************************************************/
 
@@ -18,9 +18,9 @@ namespace fuel
 {
 	namespace graphics
 	{
-		/**
+		/*****************************************************************
 		 * Wrapper class for OpenGL attribute list stored inside a VAO.
-		 */
+		 *****************************************************************/
 		class GLAttributeList
 		{
 		private:
@@ -83,12 +83,12 @@ namespace fuel
 			 * @param data
 			 *      	The data as readonly vector reference.
 			 */
-			template<typename T>
-			void write(GLenum usage, GLuint groupSize, GLenum datatype, const vector<T> &data)
+			template<typename DATATYPE, GLuint GROUPSIZE>
+			void write(GLenum usage, GLenum datatype, const vector<DATATYPE> &data)
 			{
-				m_pArrayBuffer->bind();
-				glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(T), (const GLvoid *)&data[0], usage);
-				glVertexAttribPointer(m_ID, groupSize, datatype, GL_FALSE, 0, nullptr);
+				GLBuffer::bind(*m_pArrayBuffer);
+				glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(DATATYPE), (const GLvoid *)&data[0], usage);
+				glVertexAttribPointer(m_ID, GROUPSIZE, datatype, GL_FALSE, 0, nullptr);
 			}
 
 			~GLAttributeList(void);

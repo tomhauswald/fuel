@@ -1,8 +1,8 @@
 /*****************************************************************
- **' GLBuffer.h
+ * GLBuffer.h
  *****************************************************************
- **' Created on: 11.06.2015
- **' Author: HAUSWALD, Tom.
+ * Created on: 11.06.2015
+ * Author: HAUSWALD, Tom.
  *****************************************************************
  *****************************************************************/
 
@@ -16,6 +16,13 @@ namespace fuel
 {
 	namespace graphics
 	{
+		/*****************************************************************
+		 * Wrapper class for generic OpenGL buffers.
+		 * This includes:
+		 *		- Array buffers (VBOs)
+		 *	 	- Element buffers (IBOs)
+		 *	 	- etc...
+		 *****************************************************************/
 		class GLBuffer
 		{
 		private:
@@ -62,9 +69,20 @@ namespace fuel
 			}
 
 			/**
-			 * Binds this buffer in order to use it.
+			 * Binds a buffer in order to use it.
+			 *
+			 * @param buffer
+			 * 		The buffer to bind.
 			 */
-			void bind();
+			static inline void bind(const GLBuffer &buffer){ glBindBuffer(buffer.m_target, buffer.m_ID); }
+
+			/**
+			 * Unbind the currently bound buffer from the target.
+			 *
+			 * @param buffer
+			 * 		Buffer that has the correct OpenGL buffer target.
+			 */
+			static inline void unbind(const GLBuffer &buffer){ glBindBuffer(buffer.m_target, GL_NONE); }
 
 			/**
 			 * Write data to this buffer.
@@ -78,8 +96,8 @@ namespace fuel
 			template<typename T>
 			void write(GLenum usage, const vector<T> &data)
 			{
-				bind();
-				glBufferData(m_target, data.size() * sizeof(T), (const GLvoid *)&data[0]);
+				bind(*this);
+				glBufferData(m_target, data.size() * sizeof(T), (const GLvoid *)&data[0], usage);
 			}
 
 			/**

@@ -1,8 +1,8 @@
 /*****************************************************************
- **' GLVertexArray.cpp
+ * GLVertexArray.cpp
  *****************************************************************
- **' Created on: 12.06.2015
- **' Author: HAUSWALD, Tom.
+ * Created on: 12.06.2015
+ * Author: HAUSWALD, Tom.
  *****************************************************************
  *****************************************************************/
 
@@ -34,9 +34,9 @@ namespace fuel
 			}
 		}
 
-		void GLVertexArray::bind(void)
+		void GLVertexArray::bind(const GLVertexArray &vao)
 		{
-			glBindVertexArray(m_ID);
+			glBindVertexArray(vao.m_ID);
 		}
 
 		GLVertexArray::~GLVertexArray(void)

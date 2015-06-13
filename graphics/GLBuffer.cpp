@@ -1,8 +1,8 @@
 /*****************************************************************
- **' GLBuffer.cpp
+ * GLBuffer.cpp
  *****************************************************************
- **' Created on: 11.06.2015
- **' Author: HAUSWALD, Tom.
+ * Created on: 11.06.2015
+ * Author: HAUSWALD, Tom.
  *****************************************************************
  *****************************************************************/
 
@@ -31,11 +31,6 @@ namespace fuel
 			int size;
 			glGetBufferParameteriv(m_target, GL_BUFFER_SIZE, &size);
 			return size;
-		}
-
-		void GLBuffer::bind()
-		{
-			glBindBuffer(m_target, m_ID);
 		}
 
 		GLBuffer::~GLBuffer(void)
