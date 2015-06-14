@@ -59,8 +59,30 @@ namespace fuel
 
 				/**
 				 * Unbinds any vertex array.
+				 * Disables all attribute lists.
 				 */
-				static inline void unbind(void){ glBindVertexArray(GL_NONE); }
+				static inline void unbind(void)
+				{
+					// Disable all vertex attribute lists
+					GLint maxAttributeLists;
+					glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxAttributeLists);
+					for(GLuint attributeList = 0; attributeList < static_cast<GLuint>(maxAttributeLists); ++attributeList)
+						glDisableVertexAttribArray(attributeList);
+					glBindVertexArray(GL_NONE);
+				}
+
+				/**
+				 * Unbinds any vertex array.
+				 * Disables attribute lists used by the VAO specified.
+				 * Prefer this version if you know the currently bound VAO.
+				 */
+				static inline void unbind(const GLVertexArray &vao)
+				{
+					// Disable active attribute lists
+					for(auto &attributeList : vao.m_attributeLists)
+						attributeList->disable();
+					glBindVertexArray(GL_NONE);
+				}
 
 				/**
 				 * Delete the underlying OpenGL VAO.

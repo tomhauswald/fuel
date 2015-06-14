@@ -6,6 +6,7 @@
  *****************************************************************
  *****************************************************************/
 
+#include "../core/Util.h"
 #include "GLAttributeList.h"
 
 namespace fuel
@@ -13,9 +14,9 @@ namespace fuel
 	namespace graphics
 	{
 		GLAttributeList::GLAttributeList(uint8_t id)
-			:m_ID(id), m_pArrayBuffer(nullptr)
+			:m_ID(id)
 		{
-			m_pArrayBuffer.reset(new GLBuffer(GL_ARRAY_BUFFER));
+			m_pArrayBuffer = core::make_unique<GLBuffer>(GL_ARRAY_BUFFER);
 			enable();
 		}
 
@@ -24,6 +25,7 @@ namespace fuel
 			if(!m_enabled)
 			{
 				glEnableVertexAttribArray(m_ID);
+				GLBuffer::bind(*m_pArrayBuffer);
 				m_enabled = true;
 			}
 		}
@@ -33,13 +35,9 @@ namespace fuel
 			if(m_enabled)
 			{
 				glDisableVertexAttribArray(m_ID);
+				GLBuffer::unbind(*m_pArrayBuffer);
 				m_enabled = false;
 			}
-		}
-
-		GLAttributeList::~GLAttributeList(void)
-		{
-
 		}
 	}
 }

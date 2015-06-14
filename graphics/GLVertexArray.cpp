@@ -37,11 +37,15 @@ namespace fuel
 		void GLVertexArray::bind(const GLVertexArray &vao)
 		{
 			glBindVertexArray(vao.m_ID);
+
+			// Enable all attribute lists
+			for(auto &attributeList : vao.m_attributeLists)
+				attributeList->enable();
 		}
 
 		GLVertexArray::~GLVertexArray(void)
 		{
-			// Delete attribute lists
+			// Delete attribute lists (managed ptrs)
 			for(auto &attributeList : m_attributeLists)
 				delete attributeList;
 			m_attributeLists.clear();

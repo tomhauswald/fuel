@@ -74,10 +74,13 @@ namespace fuel
 			cout << "GPU Information: " << glGetString( GL_RENDERER ) << endl;
 
 			// Setup some OpenGL states
-			glEnable( GL_DEPTH_TEST );
-			glDepthFunc( GL_LESS );
+			glEnable(GL_DEPTH_TEST);
+			glDepthFunc(GL_LESS);
 			glEnable(GL_CULL_FACE);
-			glCullFace( GL_BACK );
+			glCullFace(GL_BACK);
+			glEnable(GL_TEXTURE_2D);
+
+			glViewport(0, 0, settings.width, settings.height);
 		}
 
 		uint16_t GLWindow::getWidth(void) const

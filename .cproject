@@ -24,8 +24,9 @@
 							</builder>
 							<tool command="as" commandLinePattern="${COMMAND} ${FLAGS} ${OUTPUT_FLAG} ${OUTPUT_PREFIX}${OUTPUT} ${INPUTS}" id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug.210710329" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug">
 								<option id="gnu.both.asm.option.include.paths.2035502239" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glm-0.9.6.3}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1393125848" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -38,8 +39,9 @@
 									<listOptionValue builtIn="false" value="GLFW_INCLUDE_NONE"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.include.paths.654402056" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glm-0.9.6.3}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.735373686" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -65,7 +67,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.paths.446538017" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/lib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew/lib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/lib}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.2012289298" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -99,7 +101,9 @@
 							<builder buildPath="${workspace_loc:/fuel}/Release" id="cdt.managedbuild.tool.gnu.builder.mingw.base.905208467" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.release.1952335036" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.release">
 								<option id="gnu.both.asm.option.include.paths.582930845" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glm-0.9.6.3}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.157912442" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
@@ -113,9 +117,9 @@
 									<listOptionValue builtIn="false" value="GLFW_INCLUDE_NONE"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.include.paths.617722659" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/glfw-.3.1.1/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glm-0.9.6.3}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew/include}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1938398813" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -139,9 +143,8 @@
 									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glew32.dll"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.546698681" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/glfw-.3.1.1/lib}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/lib}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew/lib}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/lib}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.388074689" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>

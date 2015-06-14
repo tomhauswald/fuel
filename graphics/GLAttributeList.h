@@ -68,7 +68,7 @@ namespace fuel
 
 			/**
 			 * Write data to this attribute list.
-			 * This binds the underlying array buffer.
+			 * This binds the underlying array buffer and unbinds any after completion.
 			 * The data type to use has to be specified as template
 			 * parameter as well as OpenGL enumeration value.
 			 *
@@ -86,12 +86,9 @@ namespace fuel
 			template<typename DATATYPE, GLuint GROUPSIZE>
 			void write(GLenum usage, GLenum datatype, const vector<DATATYPE> &data)
 			{
-				GLBuffer::bind(*m_pArrayBuffer);
-				glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(DATATYPE), (const GLvoid *)&data[0], usage);
+				m_pArrayBuffer->write(usage, data);
 				glVertexAttribPointer(m_ID, GROUPSIZE, datatype, GL_FALSE, 0, nullptr);
 			}
-
-			~GLAttributeList(void);
 		};
 	}
 }

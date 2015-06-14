@@ -10,8 +10,7 @@
 #define GRAPHICS_GLWINDOW_H_
 
 #include <iostream>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "GLCalls.h"
 #include "GLWindowSettings.h"
 
 namespace fuel
