@@ -160,6 +160,16 @@ int main(int argc, char **argv)
 	glm::mat4 worldViewProjection = projection * view * world;
 
 
+	GLBuffer vbo(GL_ARRAY_BUFFER);
+	GLBuffer::bind(vbo);
+	vbo.write(GL_STATIC_DRAW, vector<float>
+	{
+		-1, -1, 0,
+		1, -1, 0,
+		1,1,0
+	});
+	GLBuffer::unbind(vbo);
+
 	while(!window.closed())
 	{
 		if(keyboard.wasKeyReleased(GLFW_KEY_ESCAPE))
@@ -170,13 +180,25 @@ int main(int argc, char **argv)
 
 		// Render the current frame
 		{
-			GLVertexArray::bind(vao);
+			//GLVertexArray::bind(vao);
+			GLBuffer::bind(vao.getAttributeList(0).getBuffer());
+			glVertexAttribPointer(
+					0,
+				  	3,
+				    GL_FLOAT,
+					GL_FALSE,
+				  	0,
+				  	nullptr
+			);
 			GLBuffer::bind(ibo);
-			shader.use();
-			shader.getUniform("uWVP").set<glm::mat4>(worldViewProjection);
+			//shader.use();
+			//shader.getUniform("uWVP").set(glm::mat4());
 			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
+			//GLBuffer::unbind(ibo);
+			//GLVertexArray::unbind();
+			//glDrawArrays(GL_TRIANGLES, 0, vbo.getElementCount<float>());
+			GLBuffer::unbind(vbo);
 			GLBuffer::unbind(ibo);
-			GLVertexArray::unbind();
 		}
 
 		window.display();

@@ -18,6 +18,16 @@ namespace fuel
 				:m_ID(GL_NONE)
 			{
 				m_ID = glCreateProgram();
+
+				if(m_ID == GL_NONE)
+				{
+					cerr << "Could not generate OpenGL shader program." << endl;
+				}
+				else
+				{
+					cout << "Generated OpenGL shader program: " << m_ID << endl;
+					this->use();
+				}
 			}
 
 			void GLShaderProgram::setShader(EGLShaderType type, const string &filename)
