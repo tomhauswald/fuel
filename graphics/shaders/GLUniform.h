@@ -10,7 +10,6 @@
 #define GRAPHICS_SHADERS_GLUNIFORM_H_
 
 #include "../GLWindow.h"
-#include <cassert>
 
 namespace fuel
 {
@@ -26,6 +25,19 @@ namespace fuel
 		// Uniform name
 		string m_name;
 
+		/**
+		 * Ensure that the parent program is currently in use
+		 * before any uniform variables are returned or modified.
+		 */
+		inline void ensureParentUsage(void)
+		{
+			GLint currentProgramID;
+			glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramID);
+			if(static_cast<GLuint>(currentProgramID) != m_parentProgramID)
+			{
+				glUseProgram(m_parentProgramID);
+			}
+		}
 	public:
 		/**
 		 * Instantiates a new GLSL uniform variable.

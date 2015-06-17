@@ -40,6 +40,8 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.include.paths.654402056" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/soil}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/soil/original}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glm-0.9.6.3}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/include}&quot;"/>
 								</option>
@@ -118,6 +120,8 @@
 								</option>
 								<option id="gnu.cpp.compiler.option.include.paths.617722659" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/soil}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/soil/original}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glm-0.9.6.3}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/include}&quot;"/>
 								</option>

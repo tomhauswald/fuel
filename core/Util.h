@@ -14,6 +14,18 @@
 #include <utility>
 #include <cstdio>
 
+// Macro shortcut to create a const-qualified by-const-reference getter.
+#define CONSTREF_GETTER(TYPE, FIELD, NAME) inline const TYPE &NAME(void) const{ return FIELD; }
+
+// Macro shortcut to create a by-reference getter.
+#define REF_GETTER(TYPE, FIELD, NAME) inline TYPE &NAME(void) { return FIELD; }
+
+// Macro shortcut to create a const-qualified by-value getter.
+#define VALUE_GETTER(TYPE, FIELD, NAME) inline TYPE NAME(void) const { return FIELD; }
+
+// Macro shortcut to create a by-const-reference setter.
+#define SETTER(TYPE, FIELD, ARG, NAME) inline void NAME(const TYPE &ARG){ FIELD = ARG; }
+
 namespace fuel
 {
 	/**

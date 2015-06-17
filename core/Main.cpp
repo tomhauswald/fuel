@@ -10,23 +10,23 @@
 #include "../graphics/GLWindow.h"
 #include "../graphics/GLVertexArray.h"
 #include "../graphics/GLFramebuffer.h"
+#include "../graphics/GLTexture.h"
 #include "../graphics/shaders/GLShaderProgram.h"
 #include "../input/Keyboard.h"
+#include "Transform.h"
+
+#include <SOIL.h>
 
 using namespace fuel;
 
-int main(int argc, char **argv)
+shared_ptr<GLVertexArray> createColoredVertexArray(void)
 {
-	GLWindow window({1280, 720, false, true});
-	Keyboard keyboard(window);
-
-
 	// Vertex array
-	GLVertexArray vao(2);
-	GLVertexArray::bind(vao);
+	shared_ptr<GLVertexArray> pVAO = make_shared<GLVertexArray>(2);
+	GLVertexArray::bind(*pVAO);
 
 	// Positions
-	vao.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
+	pVAO->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
 	{
 			// Front face
 			-1.0f, -1.0f, 1.0f,
@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 	});
 
 	// RGB colors
-	vao.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
+	pVAO->getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
 	{
 			1, 0, 0,
 			1, 0, 0,
@@ -100,6 +100,100 @@ int main(int argc, char **argv)
 	});
 	GLVertexArray::unbind();
 
+	return pVAO;
+}
+
+shared_ptr<GLVertexArray> createTexturedVertexArray(void)
+{
+	// Vertex array
+	shared_ptr<GLVertexArray> pVAO = make_shared<GLVertexArray>(2);
+	GLVertexArray::bind(*pVAO);
+
+	// Positions
+	pVAO->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
+	{
+			// Front face
+			-1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f,
+
+			// Right face
+			1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, 1.0f, -1.0f,
+			1.0f, 1.0f, 1.0f,
+
+			// Back face
+			1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+			1.0f, 1.0f, -1.0f,
+
+			// Left face
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, -1.0f,
+
+			// Top Face
+			-1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+
+			// Bottom Face
+			1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f
+	});
+
+	// Texture coordinates
+	pVAO->getAttributeList(1).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
+	{
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1
+	});
+	GLVertexArray::unbind();
+
+	return pVAO;
+}
+
+int main(int argc, char **argv)
+{
+	GLWindow window({1280, 720, false, true});
+	Keyboard keyboard(window);
+
+	auto pColoredVertexArray = createColoredVertexArray();
+	auto pTexturedVertexArray = createTexturedVertexArray();
 
 	// Index buffer
 	GLBuffer ibo(GL_ELEMENT_ARRAY_BUFFER);
@@ -136,13 +230,22 @@ int main(int argc, char **argv)
 	GLFramebuffer::unbind(); */
 
 
-	GLShaderProgram shader;
-	shader.setShader(EGLShaderType::VERTEX,   "res/glsl/colored.vert");
-	shader.setShader(EGLShaderType::FRAGMENT, "res/glsl/colored.frag");
-	shader.bindVertexAttribute(0, "vPosition");
-	shader.bindVertexAttribute(1, "vColor");
-	shader.link();
-	shader.registerUniform("uWVP");
+	GLShaderProgram coloredShader;
+	coloredShader.setShader(EGLShaderType::VERTEX,   "res/glsl/colored.vert");
+	coloredShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/colored.frag");
+	coloredShader.bindVertexAttribute(0, "vPosition");
+	coloredShader.bindVertexAttribute(1, "vColor");
+	coloredShader.link();
+	coloredShader.registerUniform("uWVP");
+
+	GLShaderProgram texturedShader;
+	texturedShader.setShader(EGLShaderType::VERTEX,   "res/glsl/textured.vert");
+	texturedShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/textured.frag");
+	texturedShader.bindVertexAttribute(0, "vPosition");
+	texturedShader.bindVertexAttribute(1, "vTexCoord");
+	texturedShader.link();
+	texturedShader.registerUniform("uWVP");
+	texturedShader.registerUniform("uTexture");
 
 	float aspectRatio = window.getWidth() / (float)window.getHeight();
 	glm::mat4 projection = glm::perspective(45.0f, aspectRatio, 0.1f, 100.0f);
@@ -152,26 +255,51 @@ int main(int argc, char **argv)
 	    glm::vec3(0,1,0)
 	);
 	glm::mat4 viewProjection = projection * view;
-	glm::mat4 worldViewProjection = viewProjection;
+
+
+	// Cube transforms
+	Transform cubeTransforms[2];
+	cubeTransforms[0].setPosition({-2.5f, 0, 0});
+	cubeTransforms[1].setPosition({ 2.5f, 0, 0});
+
+	// Cube texture
+	GLTexture cubeTexture("res/textures/grass.png");
 
 	while(!window.closed())
 	{
+		float time = static_cast<float>(glfwGetTime());
 		if(keyboard.wasKeyReleased(GLFW_KEY_ESCAPE))
 			window.close();
 		keyboard.update();
 
-		float time = glfwGetTime();
-		worldViewProjection = viewProjection * glm::rotate(glm::mat4(), 180 * sinf(time * 0.25f / 6.283f), glm::vec3(0,1,0));
-		shader.getUniform("uWVP").set(worldViewProjection);
+		float freq = 90.0f;
+		cubeTransforms[0].getRotation().y =  time * freq;
+		cubeTransforms[1].getRotation().y = -time * freq;
 
 		window.prepare();
 
 		// Render the current frame
 		{
-			GLVertexArray::bind(vao);
+			//-- Colored
+			GLVertexArray::bind(*pColoredVertexArray);
 			GLBuffer::bind(ibo);
 
-			shader.use();
+			coloredShader.use();
+			coloredShader.getUniform("uWVP").set(viewProjection * cubeTransforms[0].calculateWorldMatrix());
+			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
+
+			GLBuffer::unbind(ibo);
+			GLVertexArray::unbind();
+
+
+
+			//-- Textured
+			GLVertexArray::bind(*pTexturedVertexArray);
+			GLBuffer::bind(ibo);
+
+			texturedShader.use();
+			texturedShader.getUniform("uWVP").set(viewProjection * cubeTransforms[1].calculateWorldMatrix());
+			texturedShader.getUniform("uTexture").set(cubeTexture.getID());
 			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
 
 			GLBuffer::unbind(ibo);

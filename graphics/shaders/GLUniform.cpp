@@ -21,6 +21,7 @@ namespace fuel
 	template<>
 	float GLUniform::get<float>(void)
 	{
+		ensureParentUsage();
 		GLfloat value;
 		glGetUniformfv(m_parentProgramID, m_location, &value);
 		return value;
@@ -30,6 +31,7 @@ namespace fuel
 	template<>
 	void GLUniform::set<float>(const float &value)
 	{
+		ensureParentUsage();
 		glUniform1f(m_location, value);
 	}
 
@@ -37,6 +39,7 @@ namespace fuel
 	template<>
 	uint32_t GLUniform::get<uint32_t>(void)
 	{
+		ensureParentUsage();
 		GLuint value;
 		glGetUniformuiv(m_parentProgramID, m_location, &value);
 		return value;
@@ -46,6 +49,7 @@ namespace fuel
 	template<>
 	void GLUniform::set<uint32_t>(const uint32_t &value)
 	{
+		ensureParentUsage();
 		glUniform1ui(m_location, value);
 	}
 
@@ -53,6 +57,7 @@ namespace fuel
 	template<>
 	glm::mat4x4 GLUniform::get<glm::mat4x4>(void)
 	{
+		ensureParentUsage();
 		GLfloat values[16];
 		glGetUniformfv(m_parentProgramID, m_location, values);
 		return glm::make_mat4x4(values);
@@ -62,6 +67,7 @@ namespace fuel
 	template<>
 	void GLUniform::set<glm::mat4x4>(const glm::mat4x4 &value)
 	{
+		ensureParentUsage();
 		glUniformMatrix4fv(m_location, 1, GL_FALSE, glm::value_ptr(value));
 	}
 }
