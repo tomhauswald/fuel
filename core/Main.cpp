@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	glm::mat4 viewProjection = projection * view;
 
 	// Cube transforms
-	Transform cubeTransforms[2];
+	Transform cubeTransforms[50];
 	cubeTransforms[0].setPosition({-2.5f, 0, 0});
 	cubeTransforms[1].setPosition({ 2.5f, 0, 0});
 
