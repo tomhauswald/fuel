@@ -13,6 +13,7 @@
 #include <type_traits>
 #include <utility>
 #include <cstdio>
+#include <vector>
 
 // Macro shortcut to create a const-qualified by-const-reference getter.
 #define CONSTREF_GETTER(TYPE, FIELD, NAME) inline const TYPE &NAME(void) const{ return FIELD; }
@@ -72,6 +73,68 @@ namespace fuel
 		if(FILE *file = fopen(filename.c_str(), "r")) { fclose(file); return true; }
 		return false;
 	}
+
+	// Cube vertices
+	static const std::vector<float> CUBE_VERTICES =
+	{
+			// Front face
+			-1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f,
+
+			// Right face
+			1.0f, -1.0f, 1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, 1.0f, -1.0f,
+			1.0f, 1.0f, 1.0f,
+
+			// Back face
+			1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+			1.0f, 1.0f, -1.0f,
+
+			// Left face
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f, 1.0f,
+			-1.0f, 1.0f, 1.0f,
+			-1.0f, 1.0f, -1.0f,
+
+			// Top Face
+			-1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, 1.0f,
+			1.0f, 1.0f, -1.0f,
+			-1.0f, 1.0f, -1.0f,
+
+			// Bottom Face
+			1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, 1.0f,
+			-1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f
+	};
+
+	// Cube indices
+	static const std::vector<uint16_t> CUBE_INDICES =
+	{
+			// Front face
+			0, 1, 2, 2, 3, 0,
+
+			// Right face
+			4, 5, 6, 6, 7, 4,
+
+			// Back face
+			8, 9, 10, 10, 11, 8,
+
+			// Left face
+			12, 13, 14, 14, 15, 12,
+
+			// Top Face
+			16, 17, 18, 18, 19, 16,
+
+			// Bottom Face
+			20, 21, 22, 22, 23, 20
+	};
 }
 
 

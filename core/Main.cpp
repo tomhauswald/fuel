@@ -26,44 +26,7 @@ shared_ptr<GLVertexArray> createColoredVertexArray(void)
 	GLVertexArray::bind(*pVAO);
 
 	// Positions
-	pVAO->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
-	{
-			// Front face
-			-1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			-1.0f, 1.0f, 1.0f,
-
-			// Right face
-			1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f, 1.0f, -1.0f,
-			1.0f, 1.0f, 1.0f,
-
-			// Back face
-			1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, 1.0f, -1.0f,
-			1.0f, 1.0f, -1.0f,
-
-			// Left face
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, 1.0f,
-			-1.0f, 1.0f, 1.0f,
-			-1.0f, 1.0f, -1.0f,
-
-			// Top Face
-			-1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, -1.0f,
-			-1.0f, 1.0f, -1.0f,
-
-			// Bottom Face
-			1.0f, -1.0f, 1.0f,
-			-1.0f, -1.0f, 1.0f,
-			-1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f
-	});
+	pVAO->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
 
 	// RGB colors
 	pVAO->getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
@@ -110,44 +73,7 @@ shared_ptr<GLVertexArray> createTexturedVertexArray(void)
 	GLVertexArray::bind(*pVAO);
 
 	// Positions
-	pVAO->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
-	{
-			// Front face
-			-1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			-1.0f, 1.0f, 1.0f,
-
-			// Right face
-			1.0f, -1.0f, 1.0f,
-			1.0f, -1.0f, -1.0f,
-			1.0f, 1.0f, -1.0f,
-			1.0f, 1.0f, 1.0f,
-
-			// Back face
-			1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, 1.0f, -1.0f,
-			1.0f, 1.0f, -1.0f,
-
-			// Left face
-			-1.0f, -1.0f, -1.0f,
-			-1.0f, -1.0f, 1.0f,
-			-1.0f, 1.0f, 1.0f,
-			-1.0f, 1.0f, -1.0f,
-
-			// Top Face
-			-1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, -1.0f,
-			-1.0f, 1.0f, -1.0f,
-
-			// Bottom Face
-			1.0f, -1.0f, 1.0f,
-			-1.0f, -1.0f, 1.0f,
-			-1.0f, -1.0f, -1.0f,
-			1.0f, -1.0f, -1.0f
-	});
+	pVAO->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
 
 	// Texture coordinates
 	pVAO->getAttributeList(1).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
@@ -197,37 +123,18 @@ int main(int argc, char **argv)
 
 	// Index buffer
 	GLBuffer ibo(GL_ELEMENT_ARRAY_BUFFER);
-	ibo.write(GL_STATIC_DRAW, vector<uint16_t>
-	{
-		// Front face
-		0, 1, 2, 2, 3, 0,
-
-		// Right face
-		4, 5, 6, 6, 7, 4,
-
-		// Back face
-		8, 9, 10, 10, 11, 8,
-
-		// Left face
-		12, 13, 14, 14, 15, 12,
-
-		// Top Face
-		16, 17, 18, 18, 19, 16,
-
-		// Bottom Face
-		20, 21, 22, 22, 23, 20
-	});
+	ibo.write(GL_STATIC_DRAW, CUBE_INDICES);
 	GLBuffer::unbind(ibo);
 
 
-	/* Framebuffer
+	// Framebuffer
 	GLFramebuffer fbo(window.getWidth(), window.getHeight());
 	GLFramebuffer::bind(fbo);
 	fbo.attach("depth", GL_DEPTH_COMPONENT32F);
 	fbo.attach("diffuse", GL_RGB32F);
 	fbo.attach("normal", GL_RGB32F);
 	fbo.setDrawAttachments({"diffuse", "normal"});
-	GLFramebuffer::unbind(); */
+	GLFramebuffer::unbind();
 
 
 	GLShaderProgram coloredShader;
