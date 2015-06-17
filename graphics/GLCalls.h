@@ -10,7 +10,7 @@
 #define GRAPHICS_GLCALLS_H_
 
 /**
- * This header includes all OpenGL specified dependencies:
+ * This header includes all OpenGL specific dependencies:
  * 		-	GLEW for extension handling
  * 		-	GLFW for context creation
  *		-	GLM for matrix and vector operations

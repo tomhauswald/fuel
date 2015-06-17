@@ -16,75 +16,73 @@
 namespace fuel
 {
 	using namespace std;
-	namespace graphics
+
+	/**
+	 * Wrapper class for an OpenGL window created and handled by GLFW.
+	 */
+	class GLWindow
 	{
+	private:
+		//Underlying GLFW window
+		GLFWwindow *m_pWindow;
+
+	public:
 		/**
-		 * OpenGL window.
+		 * Instantiates a new OpenGL window using the given settings.
+		 *
+		 * @param settings
+		 * 			Window settings.
 		 */
-		class GLWindow
-		{
-		private:
-			//Underlying GLFW window
-			GLFWwindow *m_pWindow;
+		GLWindow(const GLWindowSettings &settings);
 
-		public:
-			/**
-			 * Instantiates a new OpenGL window using the given settings.
-			 *
-			 * @param settings
-			 * 			Window settings.
-			 */
-			GLWindow(const GLWindowSettings &settings);
+		/**
+		 * Returns the underlying GLFW window handle.
+		 *
+		 * @return GLFW window handle.
+		 */
+		inline GLFWwindow *getWindowHandle(void) const { return m_pWindow; }
 
-			/**
-			 * Returns the underlying GLFW window handle.
-			 *
-			 * @return GLFW window handle.
-			 */
-			inline GLFWwindow *getWindowHandle(void) const { return m_pWindow; }
+		/**
+		 * Returns whether this window was closed.
+		 *
+		 * @return Whether the window was closed.
+		 */
+		inline bool closed() const { return (glfwWindowShouldClose(m_pWindow) == GL_TRUE); }
 
-			/**
-			 * Returns whether this window was closed.
-			 *
-			 * @return Whether the window was closed.
-			 */
-			inline bool closed() const { return (glfwWindowShouldClose(m_pWindow) == GL_TRUE); }
+		/**
+		 * Returns the width of the window in pixels.
+		 *
+		 * @return Width of the window in pixels.
+		 */
+		uint16_t getWidth(void) const;
 
-			/**
-			 * Returns the width of the window in pixels.
-			 *
-			 * @return Width of the window in pixels.
-			 */
-			uint16_t getWidth(void) const;
+		/**
+		 * Returns the height of the window in pixels.
+		 *
+		 * @return Height of the window in pixels.
+		 */
+		uint16_t getHeight(void) const;
 
-			/**
-			 * Returns the height of the window in pixels.
-			 *
-			 * @return Height of the window in pixels.
-			 */
-			uint16_t getHeight(void) const;
+		/**
+		 * Tells the window to close.
+		 */
+		inline void close(void){ glfwSetWindowShouldClose(m_pWindow, GL_TRUE); }
 
-			/**
-			 * Tells the window to close.
-			 */
-			inline void close(void){ glfwSetWindowShouldClose(m_pWindow, GL_TRUE); }
+		/**
+		 * Prepares the window to draw the next frame.
+		 */
+		void prepare(void);
 
-			/**
-			 * Prepares the window to draw the next frame.
-			 */
-			void prepare(void);
+		/**
+		 * Draws the next frame.
+		 */
+		void display(void);
 
-			/**
-			 * Draws the next frame.
-			 */
-			void display(void);
-
-			/**
-			 * Delete the underlying GLFW window object.
-			 */
-			~GLWindow(void);
-		};
-	}
+		/**
+		 * Delete the underlying GLFW window object.
+		 */
+		~GLWindow(void);
+	};
 }
 
 

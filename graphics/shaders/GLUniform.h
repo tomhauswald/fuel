@@ -14,56 +14,50 @@
 
 namespace fuel
 {
-	namespace graphics
+	class GLUniform
 	{
-		namespace shaders
-		{
-			class GLUniform
-			{
-			private:
-				// OpenGL shader program ID of parent
-				GLuint m_parentProgramID;
+	private:
+		// OpenGL shader program ID of parent
+		GLuint m_parentProgramID;
 
-				// Uniform location
-				GLint m_location;
+		// Uniform location
+		GLint m_location;
 
-				// Uniform name
-				string m_name;
+		// Uniform name
+		string m_name;
 
-			public:
-				/**
-				 * Instantiates a new GLSL uniform variable.
-				 *
-				 * @param programID
-				 *        Parent shader program ID.
-				 * @param name
-				 *        Name of the variable.
-				 */
-				GLUniform(GLuint programID, const string &name);
+	public:
+		/**
+		 * Instantiates a new GLSL uniform variable.
+		 *
+		 * @param programID
+		 *        Parent shader program ID.
+		 * @param name
+		 *        Name of the variable.
+		 */
+		GLUniform(GLuint programID, const string &name);
 
-				/**
-				 * Returns the uniform's name.
-				 *
-				 * @return Name.
-				 */
-				inline const string &getName(void) const { return m_name; }
+		/**
+		 * Returns the uniform's name.
+		 *
+		 * @return Name.
+		 */
+		inline const string &getName(void) const { return m_name; }
 
-				/**
-				 * Returns the shader uniform value as the specified type.
-				 *
-				 * @return Uniform value.
-				 */
-				template<typename T>
-				T get(void);
+		/**
+		 * Returns the shader uniform value as the specified type.
+		 *
+		 * @return Uniform value.
+		 */
+		template<typename T>
+		T get(void);
 
-				/**
-				 * Sets the shader uniform value.
-				 */
-				template<typename T>
-				void set(const T &value);
-			};
-		}
-	}
+		/**
+		 * Sets the shader uniform value.
+		 */
+		template<typename T>
+		void set(const T &value);
+	};
 }
 
 

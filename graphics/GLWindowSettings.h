@@ -14,29 +14,26 @@
 
 namespace fuel
 {
-	namespace graphics
+	/**
+	 * OpenGL window settings.
+	 */
+	struct GLWindowSettings
 	{
-		/**
-		 * OpenGL window settings.
-		 */
-		struct GLWindowSettings
-		{
-			//Window width in pixels
-			uint16_t width;
+		//Window width in pixels
+		uint16_t width;
 
-			//Window height in pixels
-			uint16_t height;
+		//Window height in pixels
+		uint16_t height;
 
-			//Whether fullscreen mode is active
-			bool fullscreen;
+		//Whether fullscreen mode is active
+		bool fullscreen;
 
-			//Whether vertical synchronization is active
-			bool vsync;
+		//Whether vertical synchronization is active
+		bool vsync;
 
-			//Window title
-			std::string title;
-		};
-	}
+		//Window title
+		std::string title;
+	};
 }
 
 #endif // GRAPHICS_GLWINDOWSETTINGS_H_

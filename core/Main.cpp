@@ -13,12 +13,7 @@
 #include "../graphics/shaders/GLShaderProgram.h"
 #include "../input/Keyboard.h"
 
-using namespace std;
 using namespace fuel;
-using namespace core;
-using namespace graphics;
-using namespace shaders;
-using namespace input;
 
 int main(int argc, char **argv)
 {
@@ -31,9 +26,7 @@ int main(int argc, char **argv)
 	GLVertexArray::bind(vao);
 
 	// Positions
-	//vao.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
-	GLBuffer vbo0(GL_ARRAY_BUFFER);
-	vbo0.write(GL_STATIC_DRAW, vector<float>
+	vao.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
 	{
 			// Front face
 			-1.0f, -1.0f, 1.0f,
@@ -73,9 +66,7 @@ int main(int argc, char **argv)
 	});
 
 	// RGB colors
-	GLBuffer vbo1(GL_ARRAY_BUFFER);
-	vbo1.write(GL_STATIC_DRAW, vector<float>
-	//vao.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
+	vao.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
 	{
 			1, 0, 0,
 			1, 0, 0,
@@ -112,7 +103,7 @@ int main(int argc, char **argv)
 
 	// Index buffer
 	GLBuffer ibo(GL_ELEMENT_ARRAY_BUFFER);
-	ibo.write(GL_STATIC_DRAW, vector<uint32_t>
+	ibo.write(GL_STATIC_DRAW, vector<uint16_t>
 	{
 		// Front face
 		0, 1, 2, 2, 3, 0,
@@ -177,23 +168,14 @@ int main(int argc, char **argv)
 
 		// Render the current frame
 		{
-			GLBuffer::bind(vbo0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-			GLBuffer::bind(vbo1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-			//GLVertexArray::bind(vao);
+			GLVertexArray::bind(vao);
 			GLBuffer::bind(ibo);
+
 			shader.use();
-			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint32_t>(), GL_UNSIGNED_INT, nullptr);
-			//GLBuffer::unbind(ibo);
-			//GLVertexArray::unbind();
-			//glDrawArrays(GL_TRIANGLES, 0, vbo.getElementCount<float>());
+			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
+
 			GLBuffer::unbind(ibo);
-			//GLVertexArray::unbind();
-			GLBuffer::unbind(vbo0);
-			GLBuffer::unbind(vbo1);
+			GLVertexArray::unbind();
 		}
 
 		window.display();

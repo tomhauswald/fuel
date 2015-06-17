@@ -11,52 +11,45 @@
 
 namespace fuel
 {
-	namespace graphics
+	GLVertexArray::GLVertexArray(uint8_t attributeListCount)
+		:m_ID(GL_NONE), m_attributeLists({})
 	{
-		GLVertexArray::GLVertexArray(uint8_t attributeListCount)
-			:m_ID(GL_NONE), m_attributeLists({})
+		glGenVertexArrays(1, &m_ID);
+
+		if(m_ID == GL_NONE)
 		{
-			glGenVertexArrays(1, &m_ID);
+			cerr << "Could not generate OpenGL vertex array." << endl;
+		}
+		else
+		{
+			cout << "Generated OpenGL vertex array: " << m_ID << endl;
 
-			if(m_ID == GL_NONE)
+			// Generate attribute lists
+			for(unsigned attr=0; attr<attributeListCount; attr++)
 			{
-				cerr << "Could not generate OpenGL vertex array." << endl;
-			}
-			else
-			{
-				cout << "Generated OpenGL vertex array: " << m_ID << endl;
-
-				// Generate attribute lists
-				for(unsigned attr=0; attr<attributeListCount; attr++)
-				{
-					m_attributeLists.push_back(new GLAttributeList(attr));
-				}
+				m_attributeLists.push_back(new GLAttributeList((GLuint)attr));
 			}
 		}
+	}
 
-		void GLVertexArray::bind(const GLVertexArray &vao)
+	void GLVertexArray::bind(const GLVertexArray &vao)
+	{
+		glBindVertexArray(vao.m_ID);
+	}
+
+	GLVertexArray::~GLVertexArray(void)
+	{
+		// Delete attribute lists (managed ptrs)
+		for(auto &attributeList : m_attributeLists)
+			delete attributeList;
+		m_attributeLists.clear();
+
+		// Delete VAO
+		if(m_ID != GL_NONE)
 		{
-			// Enable all attribute lists
-			for(auto &attributeList : vao.m_attributeLists)
-				attributeList->enable();
-
-			glBindVertexArray(vao.m_ID);
-		}
-
-		GLVertexArray::~GLVertexArray(void)
-		{
-			// Delete attribute lists (managed ptrs)
-			for(auto &attributeList : m_attributeLists)
-				delete attributeList;
-			m_attributeLists.clear();
-
-			// Delete VAO
-			if(m_ID != GL_NONE)
-			{
-				cout << "Deleting OpenGL vertex array: " << m_ID << endl;
-				glDeleteVertexArrays(1, &m_ID);
-				m_ID = GL_NONE;
-			}
+			cout << "Deleting OpenGL vertex array: " << m_ID << endl;
+			glDeleteVertexArrays(1, &m_ID);
+			m_ID = GL_NONE;
 		}
 	}
 }

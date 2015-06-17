@@ -10,58 +10,52 @@
 
 namespace fuel
 {
-	namespace graphics
+	GLShaderProgram::GLShaderProgram(void)
+		:m_ID(GL_NONE)
 	{
-		namespace shaders
+		m_ID = glCreateProgram();
+
+		if(m_ID == GL_NONE)
 		{
-			GLShaderProgram::GLShaderProgram(void)
-				:m_ID(GL_NONE)
-			{
-				m_ID = glCreateProgram();
+			cerr << "Could not generate OpenGL shader program." << endl;
+		}
+		else
+		{
+			cout << "Generated OpenGL shader program: " << m_ID << endl;
+			this->use();
+		}
+	}
 
-				if(m_ID == GL_NONE)
-				{
-					cerr << "Could not generate OpenGL shader program." << endl;
-				}
-				else
-				{
-					cout << "Generated OpenGL shader program: " << m_ID << endl;
-					this->use();
-				}
-			}
+	void GLShaderProgram::setShader(EGLShaderType type, const string &filename)
+	{
+		// Already contains shader of this type
+		if(m_shaders.count(type) > 0)
+		{
+			// Detach old shader
+			detachShader(m_shaders[type]);
+			m_shaders.erase(type);
+		}
 
-			void GLShaderProgram::setShader(EGLShaderType type, const string &filename)
-			{
-				// Already contains shader of this type
-				if(m_shaders.count(type) > 0)
-				{
-					// Detach old shader
-					detachShader(m_shaders[type]);
-					m_shaders.erase(type);
-				}
+		// Store and attach new shader
+		m_shaders[type] = make_unique<GLShader>(type, filename);
+		attachShader(m_shaders[type]);
+	}
 
-				// Store and attach new shader
-				m_shaders[type] = core::make_unique<GLShader>(type, filename);
-				attachShader(m_shaders[type]);
-			}
+	GLShaderProgram::~GLShaderProgram(void)
+	{
+		for(const auto &shader : m_shaders)
+		{
+			detachShader(shader.second);
+		}
 
-			GLShaderProgram::~GLShaderProgram(void)
-			{
-				for(const auto &shader : m_shaders)
-				{
-					detachShader(shader.second);
-				}
+		m_shaders.clear();
+		m_uniforms.clear();
 
-				m_shaders.clear();
-				m_uniforms.clear();
-
-				if(m_ID != GL_NONE)
-				{
-					cout << "Deleting OpenGL shader program: " << m_ID << endl;
-					glDeleteProgram(m_ID);
-					m_ID = GL_NONE;
-				}
-			}
+		if(m_ID != GL_NONE)
+		{
+			cout << "Deleting OpenGL shader program: " << m_ID << endl;
+			glDeleteProgram(m_ID);
+			m_ID = GL_NONE;
 		}
 	}
 }

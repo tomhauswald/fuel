@@ -12,31 +12,28 @@
 
 namespace fuel
 {
-	namespace input
+	Keyboard *Keyboard::s_pKeyboard = nullptr;
+
+	Keyboard::Keyboard(GLWindow &window)
+		:m_window(window)
 	{
-		Keyboard *Keyboard::s_pKeyboard = nullptr;
+		s_pKeyboard = this;
 
-		Keyboard::Keyboard(graphics::GLWindow &window)
-			:m_window(window)
+		// Initialize key states to false
+		memset(&m_keys, 	GL_FALSE, NUM_KEYS);
+		memset(&m_prevKeys, GL_FALSE, NUM_KEYS);
+
+		// Set window callback
+		glfwSetKeyCallback(m_window.getWindowHandle(), [](GLFWwindow* window, int key, int scan, int action, int mods)
 		{
-			s_pKeyboard = this;
+			// Update key state accordingly
+			s_pKeyboard->m_keys[key] = (action == GLFW_PRESS ? true : false);
+		});
+	}
 
-			// Initialize key states to false
-			memset(&m_keys, 	GL_FALSE, NUM_KEYS);
-			memset(&m_prevKeys, GL_FALSE, NUM_KEYS);
-
-			// Set window callback
-			glfwSetKeyCallback(m_window.getWindowHandle(), [](GLFWwindow* window, int key, int scan, int action, int mods)
-			{
-				// Update key state accordingly
-				s_pKeyboard->m_keys[key] = (action == GLFW_PRESS ? true : false);
-			});
-		}
-
-		Keyboard::~Keyboard(void)
-		{
-			// Unset key callback
-			glfwSetKeyCallback(m_window.getWindowHandle(), [](GLFWwindow* window, int key, int scan, int action, int mods){ ; });
-		}
+	Keyboard::~Keyboard(void)
+	{
+		// Unset key callback
+		glfwSetKeyCallback(m_window.getWindowHandle(), [](GLFWwindow* window, int key, int scan, int action, int mods){ ; });
 	}
 }
