@@ -90,6 +90,14 @@ namespace fuel
 		glDrawBuffers(buffers.size(), &buffers[0]);
 	}
 
+	void GLFramebuffer::showAttachmentContent(const string &attachment, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_ID);
+		glReadBuffer(this->getAttachment(attachment).attachmentSlot);
+		glBlitFramebuffer(0, 0, m_width, m_height, x, y, x+w, y+h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
+	}
+
 	GLFramebuffer::~GLFramebuffer(void)
 	{
 		// Delete attachment textures

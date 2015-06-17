@@ -15,144 +15,47 @@
 #include "../input/Keyboard.h"
 #include "Transform.h"
 
-#include <SOIL.h>
-
 using namespace fuel;
-
-shared_ptr<GLVertexArray> createColoredVertexArray(void)
-{
-	// Vertex array
-	shared_ptr<GLVertexArray> pVAO = make_shared<GLVertexArray>(2);
-	GLVertexArray::bind(*pVAO);
-
-	// Positions
-	pVAO->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
-
-	// RGB colors
-	pVAO->getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
-	{
-			1, 0, 0,
-			1, 0, 0,
-			1, 0, 0,
-			1, 0, 0,
-
-			0, 1, 0,
-			0, 1, 0,
-			0, 1, 0,
-			0, 1, 0,
-
-			0, 0, 1,
-			0, 0, 1,
-			0, 0, 1,
-			0, 0, 1,
-
-			1, 1, 0,
-			1, 1, 0,
-			1, 1, 0,
-			1, 1, 0,
-
-			0, 1, 1,
-			0, 1, 1,
-			0, 1, 1,
-			0, 1, 1,
-
-			1, 0, 1,
-			1, 0, 1,
-			1, 0, 1,
-			1, 0, 1,
-	});
-	GLVertexArray::unbind();
-
-	return pVAO;
-}
-
-shared_ptr<GLVertexArray> createTexturedVertexArray(void)
-{
-	// Vertex array
-	shared_ptr<GLVertexArray> pVAO = make_shared<GLVertexArray>(2);
-	GLVertexArray::bind(*pVAO);
-
-	// Positions
-	pVAO->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
-
-	// Texture coordinates
-	pVAO->getAttributeList(1).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
-	{
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 1,
-
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 1,
-
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 1,
-
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 1,
-
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 1,
-
-			0, 0,
-			1, 0,
-			1, 1,
-			0, 1
-	});
-	GLVertexArray::unbind();
-
-	return pVAO;
-}
 
 int main(int argc, char **argv)
 {
 	GLWindow window({1280, 720, false, true});
 	Keyboard keyboard(window);
 
-	auto pColoredVertexArray = createColoredVertexArray();
-	auto pTexturedVertexArray = createTexturedVertexArray();
+	// Framebuffer
+	GLFramebuffer fbo(window.getWidth(), window.getHeight());
+	GLFramebuffer::bind(fbo);
+	fbo.attach("depth",    GL_DEPTH_COMPONENT32F);
+	fbo.attach("diffuse",  GL_RGB32F);
+	fbo.attach("position", GL_RGB32F);
+	fbo.attach("normal",   GL_RGB32F);
+	fbo.attach("texcoord", GL_RGB32F);
+	fbo.setDrawAttachments({"diffuse", "position", "normal", "texcoord"});
+	GLFramebuffer::unbind();
 
 	// Index buffer
 	GLBuffer ibo(GL_ELEMENT_ARRAY_BUFFER);
 	ibo.write(GL_STATIC_DRAW, CUBE_INDICES);
 	GLBuffer::unbind(ibo);
 
+	// Vertex array
+	GLVertexArray vao(3);
+	GLVertexArray::bind(vao);
+	vao.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
+	vao.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_NORMALS);
+	vao.getAttributeList(2).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT, CUBE_TEXTURE_COORDS);
+	GLVertexArray::unbind();
 
-	// Framebuffer
-	GLFramebuffer fbo(window.getWidth(), window.getHeight());
-	GLFramebuffer::bind(fbo);
-	fbo.attach("depth", GL_DEPTH_COMPONENT32F);
-	fbo.attach("diffuse", GL_RGB32F);
-	fbo.attach("normal", GL_RGB32F);
-	fbo.setDrawAttachments({"diffuse", "normal"});
-	GLFramebuffer::unbind();
-
-
-	GLShaderProgram coloredShader;
-	coloredShader.setShader(EGLShaderType::VERTEX,   "res/glsl/colored.vert");
-	coloredShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/colored.frag");
-	coloredShader.bindVertexAttribute(0, "vPosition");
-	coloredShader.bindVertexAttribute(1, "vColor");
-	coloredShader.link();
-	coloredShader.registerUniform("uWVP");
-
-	GLShaderProgram texturedShader;
-	texturedShader.setShader(EGLShaderType::VERTEX,   "res/glsl/textured.vert");
-	texturedShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/textured.frag");
-	texturedShader.bindVertexAttribute(0, "vPosition");
-	texturedShader.bindVertexAttribute(1, "vTexCoord");
-	texturedShader.link();
-	texturedShader.registerUniform("uWVP");
-	texturedShader.registerUniform("uTexture");
+	GLShaderProgram deferredShader;
+	deferredShader.setShader(EGLShaderType::VERTEX,   "res/glsl/deferred.vert");
+	deferredShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/deferred.frag");
+	deferredShader.bindVertexAttribute(0, "vPosition");
+	deferredShader.bindVertexAttribute(1, "vNormal");
+	deferredShader.bindVertexAttribute(2, "vTexCoord");
+	deferredShader.link();
+	deferredShader.registerUniform("uWVP");
+	deferredShader.registerUniform("uWorld");
+	deferredShader.registerUniform("uDiffuseTexture");
 
 	float aspectRatio = window.getWidth() / (float)window.getHeight();
 	glm::mat4 projection = glm::perspective(45.0f, aspectRatio, 0.1f, 100.0f);
@@ -163,7 +66,6 @@ int main(int argc, char **argv)
 	);
 	glm::mat4 viewProjection = projection * view;
 
-
 	// Cube transforms
 	Transform cubeTransforms[2];
 	cubeTransforms[0].setPosition({-2.5f, 0, 0});
@@ -171,6 +73,7 @@ int main(int argc, char **argv)
 
 	// Cube texture
 	GLTexture cubeTexture("res/textures/grass.png");
+	deferredShader.getUniform("uDiffuseTexture").set(cubeTexture.getID());
 
 	while(!window.closed())
 	{
@@ -187,30 +90,33 @@ int main(int argc, char **argv)
 
 		// Render the current frame
 		{
-			//-- Colored
-			GLVertexArray::bind(*pColoredVertexArray);
+			GLFramebuffer::bind(fbo);
+			GLVertexArray::bind(vao);
 			GLBuffer::bind(ibo);
+			fbo.clear();
+			deferredShader.use();
 
-			coloredShader.use();
-			coloredShader.getUniform("uWVP").set(viewProjection * cubeTransforms[0].calculateWorldMatrix());
+			// Draw first cube
+			auto worldMatrix = cubeTransforms[0].calculateWorldMatrix();
+			deferredShader.getUniform("uWorld").set(worldMatrix);
+			deferredShader.getUniform("uWVP").set(viewProjection * worldMatrix);
 			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
 
-			GLBuffer::unbind(ibo);
-			GLVertexArray::unbind();
-
-
-
-			//-- Textured
-			GLVertexArray::bind(*pTexturedVertexArray);
-			GLBuffer::bind(ibo);
-
-			texturedShader.use();
-			texturedShader.getUniform("uWVP").set(viewProjection * cubeTransforms[1].calculateWorldMatrix());
-			texturedShader.getUniform("uTexture").set(cubeTexture.getID());
+			// Draw second cube
+			worldMatrix = cubeTransforms[1].calculateWorldMatrix();
+			deferredShader.getUniform("uWorld").set(worldMatrix);
+			deferredShader.getUniform("uWVP").set(viewProjection * worldMatrix);
 			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
 
-			GLBuffer::unbind(ibo);
-			GLVertexArray::unbind();
+			GLFramebuffer::unbind();
+
+			// Now back at default framebuffer
+			string attachmentNames[] = { "diffuse", "position", "normal", "texcoord" };
+			uint16_t vpw = window.getWidth(), vph = window.getHeight();
+			for(unsigned i=0; i<4; ++i)
+			{
+				fbo.showAttachmentContent(attachmentNames[i], (vpw / 2) * (i % 2), (vph / 2) * (1 - i / 2), vpw / 2, vph / 2);
+			}
 		}
 
 		window.display();

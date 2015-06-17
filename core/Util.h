@@ -114,6 +114,80 @@ namespace fuel
 			1.0f, -1.0f, -1.0f
 	};
 
+	// Cube normals
+	static const std::vector<float> CUBE_NORMALS =
+	{
+			// Front face
+			0, 0, 1,
+			0, 0, 1,
+			0, 0, 1,
+			0, 0, 1,
+
+			// Right face
+			1, 0, 0,
+			1, 0, 0,
+			1, 0, 0,
+			1, 0, 0,
+
+			// Back face
+			0, 0, -1,
+			0, 0, -1,
+			0, 0, -1,
+			0, 0, -1,
+
+			// Left face
+			-1, 0, 0,
+			-1, 0, 0,
+			-1, 0, 0,
+			-1, 0, 0,
+
+			// Top Face
+			0, 1, 0,
+			0, 1, 0,
+			0, 1, 0,
+			0, 1, 0,
+
+			// Bottom Face
+			0, -1, 0,
+			0, -1, 0,
+			0, -1, 0,
+			0, -1, 0,
+	};
+
+	// Cube texture coordinates
+	static const std::vector<float> CUBE_TEXTURE_COORDS =
+	{
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1,
+
+			0, 0,
+			1, 0,
+			1, 1,
+			0, 1
+	};
+
 	// Cube indices
 	static const std::vector<uint16_t> CUBE_INDICES =
 	{

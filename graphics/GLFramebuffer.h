@@ -98,6 +98,11 @@ namespace fuel
 		inline uint16_t getHeight(void) const { return m_height; }
 
 		/**
+		 * Clears color and depth buffer of this framebuffer.
+		 */
+		inline void clear(void) { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+
+		/**
 		 * Returns the number of attachment textures.
 		 *
 		 * @return Number of attachment textures.
@@ -178,6 +183,26 @@ namespace fuel
 		 * 		Names of the attachment textures to use.
 		 */
 		void setDrawAttachments(const vector<string> &attachments);
+
+		/**
+		 * Renders the content of the specified attachment to the currently bound FBO.
+		 *
+		 * @param attachment
+		 * 		Which attachment texture to show.
+		 *
+		 * @param x
+		 * 		X coordinate. (screenspace)
+		 *
+		 * @param y
+		 * 		Y coordinate. (screenspace)
+		 *
+		 * @param w
+		 * 		Destination width in pixels.
+		 *
+		 * @param h
+		 * 		Destination height in pixels.
+		 */
+		void showAttachmentContent(const string &attachment, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 		/**
 		 * Deletes the attachment textures.
