@@ -36,11 +36,11 @@ namespace fuel
 
 		void GLVertexArray::bind(const GLVertexArray &vao)
 		{
-			glBindVertexArray(vao.m_ID);
-
 			// Enable all attribute lists
 			for(auto &attributeList : vao.m_attributeLists)
 				attributeList->enable();
+
+			glBindVertexArray(vao.m_ID);
 		}
 
 		GLVertexArray::~GLVertexArray(void)

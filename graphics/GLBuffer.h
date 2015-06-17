@@ -96,8 +96,9 @@ namespace fuel
 			template<typename T>
 			void write(GLenum usage, const vector<T> &data)
 			{
-				bind(*this);
+				GLBuffer::bind(*this);
 				glBufferData(m_target, data.size() * sizeof(T), (const GLvoid *)&data[0], usage);
+				GLBuffer::unbind(*this);
 			}
 
 			/**

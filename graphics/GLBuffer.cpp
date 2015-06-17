@@ -22,7 +22,7 @@ namespace fuel
 			}
 			else
 			{
-				cout << "Generated OpenGL buffer: " << m_ID << endl;
+				cout << "Generated OpenGL buffer: " << m_ID << " (" << ((target == GL_ARRAY_BUFFER) ? "VBO" : "IBO") << ")" << endl;
 			}
 		}
 

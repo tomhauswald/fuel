@@ -31,7 +31,9 @@ int main(int argc, char **argv)
 	GLVertexArray::bind(vao);
 
 	// Positions
-	vao.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
+	//vao.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
+	GLBuffer vbo0(GL_ARRAY_BUFFER);
+	vbo0.write(GL_STATIC_DRAW, vector<float>
 	{
 			// Front face
 			-1.0f, -1.0f, 1.0f,
@@ -71,7 +73,9 @@ int main(int argc, char **argv)
 	});
 
 	// RGB colors
-	vao.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
+	GLBuffer vbo1(GL_ARRAY_BUFFER);
+	vbo1.write(GL_STATIC_DRAW, vector<float>
+	//vao.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT,
 	{
 			1, 0, 0,
 			1, 0, 0,
@@ -108,25 +112,25 @@ int main(int argc, char **argv)
 
 	// Index buffer
 	GLBuffer ibo(GL_ELEMENT_ARRAY_BUFFER);
-	ibo.write(GL_STATIC_DRAW, vector<uint16_t>
+	ibo.write(GL_STATIC_DRAW, vector<uint32_t>
 	{
 		// Front face
 		0, 1, 2, 2, 3, 0,
 
 		// Right face
-		7, 6, 5, 5, 4, 7,
+		4, 5, 6, 6, 7, 4,
 
 		// Back face
-		11, 10, 9, 9, 8, 11,
+		8, 9, 10, 10, 11, 8,
 
 		// Left face
-		15, 14, 13, 13, 12, 15,
+		12, 13, 14, 14, 15, 12,
 
 		// Top Face
-		19, 18, 17, 17, 16, 19,
+		16, 17, 18, 18, 19, 16,
 
 		// Bottom Face
-		23, 22, 21, 21, 20, 23
+		20, 21, 22, 22, 23, 20
 	});
 	GLBuffer::unbind(ibo);
 
@@ -152,23 +156,12 @@ int main(int argc, char **argv)
 	float aspectRatio = window.getWidth() / (float)window.getHeight();
 	glm::mat4 projection = glm::perspective(45.0f, aspectRatio, 0.1f, 100.0f);
 	glm::mat4 view       = glm::lookAt(
-	    glm::vec3(4,3,3),
+	    glm::vec3(0,0,5),
 	    glm::vec3(0,0,0),
 	    glm::vec3(0,1,0)
 	);
-	glm::mat4 world = glm::mat4(1.0f);
-	glm::mat4 worldViewProjection = projection * view * world;
-
-
-	GLBuffer vbo(GL_ARRAY_BUFFER);
-	GLBuffer::bind(vbo);
-	vbo.write(GL_STATIC_DRAW, vector<float>
-	{
-		-1, -1, 0,
-		1, -1, 0,
-		1,1,0
-	});
-	GLBuffer::unbind(vbo);
+	glm::mat4 viewProjection = projection * view;
+	glm::mat4 worldViewProjection = viewProjection;
 
 	while(!window.closed())
 	{
@@ -176,29 +169,31 @@ int main(int argc, char **argv)
 			window.close();
 		keyboard.update();
 
+		float time = glfwGetTime();
+		worldViewProjection = viewProjection * glm::rotate(glm::mat4(), 180 * sinf(time * 0.25f / 6.283f), glm::vec3(0,1,0));
+		shader.getUniform("uWVP").set(worldViewProjection);
+
 		window.prepare();
 
 		// Render the current frame
 		{
+			GLBuffer::bind(vbo0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+			GLBuffer::bind(vbo1);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
 			//GLVertexArray::bind(vao);
-			GLBuffer::bind(vao.getAttributeList(0).getBuffer());
-			glVertexAttribPointer(
-					0,
-				  	3,
-				    GL_FLOAT,
-					GL_FALSE,
-				  	0,
-				  	nullptr
-			);
 			GLBuffer::bind(ibo);
-			//shader.use();
-			//shader.getUniform("uWVP").set(glm::mat4());
-			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
+			shader.use();
+			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint32_t>(), GL_UNSIGNED_INT, nullptr);
 			//GLBuffer::unbind(ibo);
 			//GLVertexArray::unbind();
 			//glDrawArrays(GL_TRIANGLES, 0, vbo.getElementCount<float>());
-			GLBuffer::unbind(vbo);
 			GLBuffer::unbind(ibo);
+			//GLVertexArray::unbind();
+			GLBuffer::unbind(vbo0);
+			GLBuffer::unbind(vbo1);
 		}
 
 		window.display();

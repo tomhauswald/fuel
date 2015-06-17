@@ -86,6 +86,7 @@ namespace fuel
 			template<typename DATATYPE, GLuint GROUPSIZE>
 			void write(GLenum usage, GLenum datatype, const vector<DATATYPE> &data)
 			{
+				this->enable();
 				m_pArrayBuffer->write(usage, data);
 				glVertexAttribPointer(m_ID, GROUPSIZE, datatype, GL_FALSE, 0, nullptr);
 			}

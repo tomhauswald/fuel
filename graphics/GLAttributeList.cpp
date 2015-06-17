@@ -14,10 +14,11 @@ namespace fuel
 	namespace graphics
 	{
 		GLAttributeList::GLAttributeList(uint8_t id)
-			:m_ID(id)
+			:m_ID(id), m_enabled(false)
 		{
+			cout << "Created OpenGL attribute list: " << (int)m_ID << endl;
 			m_pArrayBuffer = core::make_unique<GLBuffer>(GL_ARRAY_BUFFER);
-			enable();
+			this->enable();
 		}
 
 		void GLAttributeList::enable(void)
