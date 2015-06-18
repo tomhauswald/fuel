@@ -29,8 +29,7 @@ int main(int argc, char **argv)
 	fbo.attach("diffuse",  GL_RGB32F);
 	fbo.attach("position", GL_RGB32F);
 	fbo.attach("normal",   GL_RGB32F);
-	fbo.attach("texcoord", GL_RGB32F);
-	fbo.setDrawAttachments({"diffuse", "position", "normal", "texcoord"});
+	fbo.setDrawAttachments({"diffuse", "position", "normal"});
 	GLFramebuffer::unbind();
 
 	// Index buffer
@@ -56,6 +55,35 @@ int main(int argc, char **argv)
 	deferredShader.registerUniform("uWVP");
 	deferredShader.registerUniform("uWorld");
 	deferredShader.registerUniform("uDiffuseTexture");
+
+	GLShaderProgram fullscreenShader;
+	fullscreenShader.setShader(EGLShaderType::VERTEX,   "res/glsl/fullscreen.vert");
+	fullscreenShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/fullscreen.frag");
+	fullscreenShader.bindVertexAttribute(0, "vPosition");
+	fullscreenShader.bindVertexAttribute(1, "vTexCoord");
+	fullscreenShader.link();
+	fullscreenShader.registerUniform("uDiffuseTexture");
+	fullscreenShader.registerUniform("uPositionTexture");
+	fullscreenShader.registerUniform("uNormalTexture");
+
+	// Create fullscreen quad VAO
+	GLVertexArray fullscreenVAO(2);
+	GLVertexArray::bind(fullscreenVAO);
+	fullscreenVAO.getAttributeList(0).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
+	{
+		-1.0f, -1.0f,
+		 1.0f, -1.0f,
+		 1.0f,  1.0f,
+		-1.0f,  1.0f
+	});
+	fullscreenVAO.getAttributeList(1).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
+	{
+		0, 0,
+		1, 0,
+		1, 1,
+		0, 1
+	});
+	GLVertexArray::unbind();
 
 	// Calculate camera matrices
 	float aspectRatio = window.getWidth() / (float)window.getHeight();
@@ -115,15 +143,16 @@ int main(int argc, char **argv)
 			deferredShader.getUniform("uWVP").set(viewProjection * worldMatrix);
 			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
 
+			// Restore default framebuffer as draw target
 			GLFramebuffer::unbind();
+			fullscreenShader.getUniform("uDiffuseTexture").set(cubeTexture.getID());
+			//fullscreenShader.getUniform("uPositionTexture").set(1u);
+			//fullscreenShader.getUniform("uNormalTexture").set(2u);
 
-			// Now back at default framebuffer
-			string attachmentNames[] = { "diffuse", "position", "normal", "texcoord" };
-			uint16_t vpw = window.getWidth(), vph = window.getHeight();
-			for(unsigned i=0; i<4; ++i)
-			{
-				fbo.showAttachmentContent(attachmentNames[i], (vpw / 2) * (i % 2), (vph / 2) * (1 - i / 2), vpw / 2, vph / 2);
-			}
+			GLVertexArray::bind(fullscreenVAO);
+			fullscreenShader.use();
+			glDrawArrays(GL_QUADS, 0, 4);
+			GLVertexArray::unbind();
 		}
 
 		window.display();

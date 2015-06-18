@@ -63,6 +63,10 @@ namespace fuel
 		glGenTextures(1, &texture);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glTexImage2D(GL_TEXTURE_2D, 0, txrFormat, m_width, m_height, 0, colorFormat, datatype, nullptr);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, slot, GL_TEXTURE_2D, texture, 0);
 		glBindTexture(GL_TEXTURE_2D, GL_NONE);
 
@@ -95,6 +99,7 @@ namespace fuel
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_ID);
 		glReadBuffer(this->getAttachment(attachment).attachmentSlot);
 		glBlitFramebuffer(0, 0, m_width, m_height, x, y, x+w, y+h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
 	}
 

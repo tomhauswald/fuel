@@ -66,6 +66,12 @@ namespace fuel
 		uint8_t m_colorAttachmentCount;
 
 	public:
+		// Read framebuffer bit
+		static const unsigned READ = 1 << 0;
+
+		// Draw framebuffer bit
+		static const unsigned DRAW = 1 << 1;
+
 		/**
 		 * Instantiates a new OpenGL framebuffer.
 		 *
@@ -113,14 +119,44 @@ namespace fuel
 		}
 
 		/**
-		 * Binds this FBO to use it.
+		 * Binds a FBO to use it.
+		 *
+		 * @param fbo
+		 * 		The framebuffer to bind
+		 *
+		 * @param target
+		 * 		Bitvector determining which framebuffer targets to bind
+		 * 		this FBO to. (READ, WRITE, READ | WRITE)
 		 */
-		static inline void bind(const GLFramebuffer &fbo){ glBindFramebuffer(GL_FRAMEBUFFER, fbo.m_ID); }
+		static inline void bind(const GLFramebuffer &fbo, unsigned target = READ | DRAW)
+		{
+			if(target & READ)
+			{
+				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
+
+				// Enable reading from color attachment textures
+				for (unsigned int i = 0 ; i < fbo.m_colorAttachmentCount; i++)
+				{
+					glActiveTexture(GL_TEXTURE0 + i);
+
+					// Bind textures
+					for(auto iter = fbo.m_attachments.begin(); iter != fbo.m_attachments.end(); ++iter)
+						if(iter->second.attachmentSlot == GL_COLOR_ATTACHMENT0 + i)
+							glBindTexture(GL_TEXTURE_2D, iter->second.texture);
+				}
+			}
+
+			if(target & DRAW) glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo.m_ID);
+		}
 
 		/**
-		 * Unbinds any FBO.
+		 * Unbinds any FBO from the specified targets.
 		 */
-		static inline void unbind(void){ glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE); }
+		static inline void unbind(unsigned target = READ | DRAW)
+		{
+			if(target & READ) glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
+			if(target & DRAW) glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
+		}
 
 		/**
 		 * Returns the color format corresponding to the specified texture format.
