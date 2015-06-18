@@ -49,20 +49,34 @@ namespace fuel
 		{
 			float lasqr = std::pow(linearAttenuation, 2); 	 // linear attenuation squared
 			float qasqr = std::pow(quadraticAttenuation, 2); // quadratic attenuation squared
-			float radius = quadraticAttenuation;
-			radius *= std::sqrt(
+
+			return quadraticAttenuation * std::sqrt(
 				(lasqr * THRESHOLD
 				- 4 * quadraticAttenuation * THRESHOLD
 				+ 4 * quadraticAttenuation
 				) / (qasqr * THRESHOLD)
-			);
-			radius /= 2 * quadraticAttenuation;
-			return radius;
+			) / (2 * quadraticAttenuation);
 		}
 
+		/**
+		 * Sets the light attenuation factors using a given linear attenuation
+		 * and desired radius.
+		 *
+		 * @param linear
+		 * 		Linear attenuation factor.
+		 *
+		 * 	@param radius
+		 * 		Desired light radius.
+		 */
 		inline void setRadius(float linear, float radius)
 		{
+			// Radius squared
+			float rsqr = std::pow(radius, 2);
 
+			// Reordering equation to 0 = X^2 + PX + Q results in:
+			float p = 1.0f / rsqr - 1.0f / (THRESHOLD * rsqr);
+			float q = - std::pow(linear, 2) / (4 * rsqr);
+			quadraticAttenuation = SOLVEQUADRATIC(p, q);
 		}
 	};
 }

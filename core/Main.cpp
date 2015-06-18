@@ -71,9 +71,7 @@ int main(int argc, char **argv)
 	PointLight pointLight;
 	pointLight.position = {0, 0, 0};
 	pointLight.color = {1, 0, 0};
-	pointLight.linearAttenuation = 0.1f;
-	pointLight.quadraticAttenuation = 0.03f;
-	COUTLN(pointLight.getRadius());
+	pointLight.setRadius(0.1f, 20.0f);
 
 	// Cube transforms
 	Transform cubeTransforms[50];

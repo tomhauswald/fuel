@@ -37,6 +37,9 @@
 // Clamp a value between minimum and maximum
 #define CLAMP(VALUE, MIN, MAX) (std::min(MAX, std::max(MIN, VALUE)))
 
+// Returns the solution of a quadratic equation in the form of: 0 = X^2 + PX + Q for X.
+#define SOLVEQUADRATIC(P, Q) (-(P) / 2 + std::sqrt(std::pow((P) / 2, 2) - (Q)))
+
 namespace fuel
 {
 	/**
