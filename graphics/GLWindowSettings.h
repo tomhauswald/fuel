@@ -28,9 +28,6 @@ namespace fuel
 		//Whether fullscreen mode is active
 		bool fullscreen;
 
-		//Whether vertical synchronization is active
-		bool vsync;
-
 		//Window title
 		std::string title;
 	};

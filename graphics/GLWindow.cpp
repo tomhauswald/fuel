@@ -28,7 +28,7 @@ namespace fuel
 			settings.width,
 			settings.height,
 			settings.title.c_str(),
-			nullptr,
+			settings.fullscreen ? glfwGetPrimaryMonitor() : nullptr,
 			nullptr
 		);
 
@@ -38,20 +38,15 @@ namespace fuel
 			cerr << "Could not create GLFW window." << endl;
 		}
 
-		// Get the resolution of the primary monitor
-		const GLFWvidmode *pVidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
 		// Center the window
-		glfwSetWindowPos(
-			m_pWindow,
-			(pVidmode->width - settings.width ) / 2,
-			(pVidmode->height - settings.height ) / 2
-		);
-
-		// Enable vertical synchronization
-		if( settings.vsync )
+		if(!settings.fullscreen)
 		{
-			glfwSwapInterval( 1 );
+			const GLFWvidmode &vidmode = *glfwGetVideoMode(glfwGetPrimaryMonitor());
+			glfwSetWindowPos(
+				m_pWindow,
+				(vidmode.width  - settings.width  ) / 2,
+				(vidmode.height - settings.height ) / 2
+			);
 		}
 
 		// Make the window visible
@@ -66,9 +61,9 @@ namespace fuel
 
 		// Print context information
 		cout << "Successfully created " << settings.width << "x" << settings.height << " window." << endl;
-		cout << "GLFW version: " << glfwGetVersionString() << endl;
-		cout << "OpenGL version: " << glGetString( GL_VERSION ) << endl;
-		cout << "GLSL version: " << glGetString( GL_SHADING_LANGUAGE_VERSION ) << endl;
+		cout << "GLFW version: " 	<< glfwGetVersionString() << endl;
+		cout << "OpenGL version: " 	<< glGetString( GL_VERSION ) << endl;
+		cout << "GLSL version: "	<< glGetString( GL_SHADING_LANGUAGE_VERSION ) << endl;
 		cout << "GPU Information: " << glGetString( GL_RENDERER ) << endl;
 
 		// Setup some OpenGL states

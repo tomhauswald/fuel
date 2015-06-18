@@ -37,6 +37,7 @@
 								<option id="gnu.cpp.compiler.option.dialect.std.760693940" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++1y" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.410608068" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="GLFW_INCLUDE_NONE"/>
+									<listOptionValue builtIn="false" value="_GLIBCXX_USE_NANOSLEEP"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.include.paths.654402056" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/include}&quot;"/>
@@ -45,6 +46,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glm-0.9.6.3}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/include}&quot;"/>
 								</option>
+								<option id="gnu.cpp.compiler.option.dialect.flags.1805998552" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" useByScannerDiscovery="true" value="" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.735373686" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug.676612261" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug">
@@ -56,6 +58,7 @@
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.2067386292" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="GLFW_INCLUDE_GLEXT"/>
 								</option>
+								<option id="gnu.c.compiler.option.dialect.std.1474978011" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1535008379" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.debug.334596264" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.debug"/>
@@ -115,8 +118,8 @@
 								<option id="gnu.cpp.compiler.mingw.exe.release.option.debugging.level.20924260" name="Debug Level" superClass="gnu.cpp.compiler.mingw.exe.release.option.debugging.level" value="gnu.cpp.compiler.debugging.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.195158860" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" value="gnu.cpp.compiler.dialect.c++1y" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1354855268" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
-									<listOptionValue builtIn="false" value="GLFW_INCLUDE_GLCOREARB "/>
 									<listOptionValue builtIn="false" value="GLFW_INCLUDE_NONE"/>
+									<listOptionValue builtIn="false" value="_GLIBCXX_USE_NANOSLEEP"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.include.paths.617722659" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glew-1.12.0/include}&quot;"/>
@@ -125,6 +128,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glm-0.9.6.3}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/include}&quot;"/>
 								</option>
+								<option id="gnu.cpp.compiler.option.dialect.flags.1248731511" name="Other dialect flags" superClass="gnu.cpp.compiler.option.dialect.flags" value="" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1938398813" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.1626731200" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release">
@@ -133,6 +137,7 @@
 								<option id="gnu.c.compiler.option.include.paths.1237547523" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/lib/glfw-3.1.1/include}&quot;"/>
 								</option>
+								<option id="gnu.c.compiler.option.dialect.std.610613072" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1589101399" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release.1081323956" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release"/>

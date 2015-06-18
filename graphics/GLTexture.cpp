@@ -6,6 +6,7 @@
  *****************************************************************
  *****************************************************************/
 
+#include <SOIL.h>
 #include "GLTexture.h"
 
 namespace fuel
@@ -19,7 +20,6 @@ namespace fuel
 		if(m_ID != GL_NONE)
 		{
 			cout << "Generated OpenGL texture: " << m_ID << endl;
-			glBindTexture(GL_TEXTURE_2D, m_ID);
 		}
 		else
 		{
@@ -48,6 +48,8 @@ namespace fuel
 			m_height = static_cast<uint16_t>(h);
 
 			cout << "Texture size is: " << m_width << "x" << m_height << " pixels." << endl;
+
+			glBindTexture(GL_TEXTURE_2D, GL_NONE);
 		}
 		else
 		{

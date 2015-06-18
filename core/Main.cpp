@@ -6,6 +6,7 @@
  *****************************************************************
  *****************************************************************/
 
+#include <cstdlib>
 #include "Util.h"
 #include "../graphics/GLWindow.h"
 #include "../graphics/GLVertexArray.h"
@@ -14,37 +15,47 @@
 #include "../graphics/shaders/GLShaderProgram.h"
 #include "../input/Keyboard.h"
 #include "../graphics/lighting/PointLight.h"
+#include "../graphics/Camera.h"
 
 using namespace fuel;
 
+void prepareGeometryPass(void);
+
+void prepareLightPass(void);
+
 int main(int argc, char **argv)
 {
-	GLWindow window({1280, 720, false, true});
+	GLWindow window({1280, 720, false});
 	Keyboard keyboard(window);
 
+	// Setup camera
+	Camera camera;
+	camera.getTransform().setPosition({0, 0, 5});
+
 	// Framebuffer
-	GLFramebuffer fbo(window.getWidth(), window.getHeight());
-	GLFramebuffer::bind(fbo);
-	fbo.attach("depth",    GL_DEPTH_COMPONENT32F);
-	fbo.attach("diffuse",  GL_RGB32F);
-	fbo.attach("position", GL_RGB32F);
-	fbo.attach("normal",   GL_RGB32F);
-	fbo.setDrawAttachments({"diffuse", "position", "normal"});
+	GLFramebuffer deferredFramebuffer(window.getWidth(), window.getHeight());
+	GLFramebuffer::bind(deferredFramebuffer);
+	deferredFramebuffer.attach("depth",    GL_DEPTH_COMPONENT32F);
+	deferredFramebuffer.attach("diffuse",  GL_RGB32F);
+	deferredFramebuffer.attach("position", GL_RGB32F);
+	deferredFramebuffer.attach("normal",   GL_RGB32F);
+	deferredFramebuffer.setDrawAttachments({"diffuse", "position", "normal"});
 	GLFramebuffer::unbind();
 
-	// Index buffer
-	GLBuffer ibo(GL_ELEMENT_ARRAY_BUFFER);
-	ibo.write(GL_STATIC_DRAW, CUBE_INDICES);
-	GLBuffer::unbind(ibo);
+	// Cube index buffer
+	GLBuffer cubeIndexBuffer(GL_ELEMENT_ARRAY_BUFFER);
+	cubeIndexBuffer.write(GL_STATIC_DRAW, CUBE_INDICES);
+	GLBuffer::unbind(cubeIndexBuffer);
 
-	// Vertex array
-	GLVertexArray vao(3);
-	GLVertexArray::bind(vao);
-	vao.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
-	vao.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_NORMALS);
-	vao.getAttributeList(2).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT, CUBE_TEXTURE_COORDS);
+	// Cube vertex array
+	GLVertexArray cubeVertexArray(3);
+	GLVertexArray::bind(cubeVertexArray);
+	cubeVertexArray.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
+	cubeVertexArray.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_NORMALS);
+	cubeVertexArray.getAttributeList(2).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT, CUBE_TEXTURE_COORDS);
 	GLVertexArray::unbind();
 
+	// Deferred shader (targeting multiple output textures: gbuffer)
 	GLShaderProgram deferredShader;
 	deferredShader.setShader(EGLShaderType::VERTEX,   "res/glsl/deferred.vert");
 	deferredShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/deferred.frag");
@@ -55,64 +66,77 @@ int main(int argc, char **argv)
 	deferredShader.registerUniform("uWVP");
 	deferredShader.registerUniform("uWorld");
 	deferredShader.registerUniform("uDiffuseTexture");
+	deferredShader.getUniform("uDiffuseTexture").set(0);
 
-	GLShaderProgram fullscreenShader;
-	fullscreenShader.setShader(EGLShaderType::VERTEX,   "res/glsl/fullscreen.vert");
-	fullscreenShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/fullscreen.frag");
-	fullscreenShader.bindVertexAttribute(0, "vPosition");
-	fullscreenShader.bindVertexAttribute(1, "vTexCoord");
-	fullscreenShader.link();
-	fullscreenShader.registerUniform("uDiffuseTexture");
-	fullscreenShader.registerUniform("uPositionTexture");
-	fullscreenShader.registerUniform("uNormalTexture");
+	// Pointlight shader
+	GLShaderProgram pointLightShader;
+	pointLightShader.setShader(EGLShaderType::VERTEX,   "res/glsl/fullscreen.vert");
+	pointLightShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/pointlight.frag");
+	pointLightShader.bindVertexAttribute(0, "vPosition");
+	pointLightShader.bindVertexAttribute(1, "vTexCoord");
+	pointLightShader.link();
+	pointLightShader.registerUniform("uDiffuseTexture");
+	pointLightShader.registerUniform("uPositionTexture");
+	pointLightShader.registerUniform("uNormalTexture");
+	pointLightShader.registerUniform("uPosition");
+	pointLightShader.registerUniform("uColor");
+	pointLightShader.registerUniform("uRadius");
+	pointLightShader.registerUniform("uLinearAttenuation");
+	pointLightShader.registerUniform("uQuadraticAttenuation");
+	pointLightShader.getUniform("uDiffuseTexture").set(0);
+	pointLightShader.getUniform("uPositionTexture").set(1);
+	pointLightShader.getUniform("uNormalTexture").set(2);
 
-	// Create fullscreen quad VAO
-	GLVertexArray fullscreenVAO(2);
-	GLVertexArray::bind(fullscreenVAO);
-	fullscreenVAO.getAttributeList(0).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
+	srand(time(nullptr));
+	vector<PointLight> pointLights;
+	for(unsigned light=0; light<5; light++) // generate lights
+	{
+		pointLights.push_back(PointLight());
+		pointLights[light].position = {-10 + rand() % 20, -10 + rand() % 20, -10 + rand() % 20};
+		pointLights[light].color = {rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX};
+		pointLights[light].setRadius(0.01f, 10 + rand() % 30);
+	}
+
+	// Fullscreen quad VAO
+	GLVertexArray fullscreenQuadVertexArray(2);
+	GLVertexArray::bind(fullscreenQuadVertexArray);
+	fullscreenQuadVertexArray.getAttributeList(0).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
 	{
 		-1.0f, -1.0f,
 		 1.0f, -1.0f,
 		 1.0f,  1.0f,
 		-1.0f,  1.0f
 	});
-	fullscreenVAO.getAttributeList(1).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
+	fullscreenQuadVertexArray.getAttributeList(1).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
 	{
-		0, 0,
-		1, 0,
-		1, 1,
-		0, 1
+		 0.0f, 0.0f,
+		 1.0f, 0.0f,
+		 1.0f, 1.0f,
+		 0.0f, 1.0f
 	});
 	GLVertexArray::unbind();
 
 	// Calculate camera matrices
 	float aspectRatio = window.getWidth() / (float)window.getHeight();
 	glm::mat4 projection = glm::perspective(45.0f, aspectRatio, 0.1f, 100.0f);
-	glm::mat4 view       = glm::lookAt(
-	    glm::vec3(0,0,5),
-	    glm::vec3(0,0,0),
-	    glm::vec3(0,1,0)
-	);
-	glm::mat4 viewProjection = projection * view;
-
-	// Test point light
-	PointLight pointLight;
-	pointLight.position = {0, 0, 0};
-	pointLight.color = {1, 0, 0};
-	pointLight.setRadius(0.1f, 20.0f);
+	glm::mat4 viewProjection = projection * camera.calculateViewMatrix();
 
 	// Cube transforms
 	Transform cubeTransforms[50];
 	cubeTransforms[0].setPosition({-2.5f, 0, 0});
 	cubeTransforms[1].setPosition({ 2.5f, 0, 0});
 
-	// Cube texture
-	GLTexture cubeTexture("res/textures/grass.png");
-	deferredShader.getUniform("uDiffuseTexture").set(cubeTexture.getID());
+	// Load grass texture
+	GLTexture grassTexture("res/textures/grass.png");
 
 	while(!window.closed())
 	{
-		float time = static_cast<float>(glfwGetTime());
+		// Calculate passed time in seconds
+		static float lastTime = static_cast<float>(glfwGetTime());
+		float time 			  = static_cast<float>(glfwGetTime());
+		float dt 			  = time - lastTime;
+		lastTime 			  = time;
+
 		if(keyboard.wasKeyReleased(GLFW_KEY_ESCAPE))
 			window.close();
 		keyboard.update();
@@ -125,38 +149,90 @@ int main(int argc, char **argv)
 
 		// Render the current frame
 		{
-			GLFramebuffer::bind(fbo);
-			GLVertexArray::bind(vao);
-			GLBuffer::bind(ibo);
-			fbo.clear();
+			// Bind GBuffer
+			GLFramebuffer::bind(deferredFramebuffer);
+			GLFramebuffer::clear();
+			prepareGeometryPass();
 			deferredShader.use();
+			{ // Geometry pass
 
-			// Draw first cube
-			auto worldMatrix = cubeTransforms[0].calculateWorldMatrix();
-			deferredShader.getUniform("uWorld").set(worldMatrix);
-			deferredShader.getUniform("uWVP").set(viewProjection * worldMatrix);
-			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
+				GLVertexArray::bind(cubeVertexArray);
+				GLBuffer::bind(cubeIndexBuffer);
+				GLTexture::bind(0, grassTexture); // Bind grass texture to unit 0
 
-			// Draw second cube
-			worldMatrix = cubeTransforms[1].calculateWorldMatrix();
-			deferredShader.getUniform("uWorld").set(worldMatrix);
-			deferredShader.getUniform("uWVP").set(viewProjection * worldMatrix);
-			glDrawElements(GL_TRIANGLES, ibo.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
+				// Draw first cube
+				auto worldMatrix = cubeTransforms[0].calculateWorldMatrix();
+				deferredShader.getUniform("uWorld").set(worldMatrix);
+				deferredShader.getUniform("uWVP").set(viewProjection * worldMatrix);
+				glDrawElements(GL_TRIANGLES, cubeIndexBuffer.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
 
-			// Restore default framebuffer as draw target
+				// Draw second cube
+				worldMatrix = cubeTransforms[1].calculateWorldMatrix();
+				deferredShader.getUniform("uWorld").set(worldMatrix);
+				deferredShader.getUniform("uWVP").set(viewProjection * worldMatrix);
+				glDrawElements(GL_TRIANGLES, cubeIndexBuffer.getElementCount<uint16_t>(), GL_UNSIGNED_SHORT, nullptr);
+
+				GLTexture::unbind(0);
+				GLBuffer::unbind(cubeIndexBuffer);
+				GLVertexArray::unbind();
+			}
+
+			// Restore & clear default framebuffer
 			GLFramebuffer::unbind();
-			fullscreenShader.getUniform("uDiffuseTexture").set(cubeTexture.getID());
-			//fullscreenShader.getUniform("uPositionTexture").set(1u);
-			//fullscreenShader.getUniform("uNormalTexture").set(2u);
+			glClear(GL_COLOR_BUFFER_BIT);
+			prepareLightPass();
+			pointLightShader.use();
+			{ // Fullscreen passes
 
-			GLVertexArray::bind(fullscreenVAO);
-			fullscreenShader.use();
-			glDrawArrays(GL_QUADS, 0, 4);
-			GLVertexArray::unbind();
+				GLVertexArray::bind(fullscreenQuadVertexArray);
+				GLFramebuffer::bind(deferredFramebuffer, GLFramebuffer::READ);
+
+				for(unsigned light=0; light<pointLights.size(); light++)
+				{
+					pointLightShader.getUniform("uPosition").set(pointLights[light].position);
+					pointLightShader.getUniform("uColor").set(pointLights[light].color);
+					pointLightShader.getUniform("uRadius").set(pointLights[light].getRadius());
+					pointLightShader.getUniform("uLinearAttenuation").set(pointLights[light].linearAttenuation);
+					pointLightShader.getUniform("uQuadraticAttenuation").set(pointLights[light].quadraticAttenuation);
+					glDrawArrays(GL_QUADS, 0, 4);
+				}
+
+				GLTexture::unbind({0, 1, 2});
+				GLVertexArray::unbind();
+			}
+
+			glUseProgram(GL_NONE);
+			prepareGeometryPass();
+			// Render downsampled gbuffer textures as overlay
+			static constexpr uint16_t previewWidth = 114, previewHeight = 64;
+			deferredFramebuffer.showAttachmentContent("diffuse",    		 0, previewHeight, previewWidth, previewHeight);
+			deferredFramebuffer.showAttachmentContent("position",   		 0, 		    0, previewWidth, previewHeight);
+			deferredFramebuffer.showAttachmentContent("normal",   previewWidth,  		    0, previewWidth, previewHeight);
 		}
 
 		window.display();
+
+		// Busy waiting :(
+		while((time = static_cast<float>(glfwGetTime())) - lastTime < 1.0f / 60);
 	}
 
 	return 0;
+}
+
+void prepareGeometryPass(void)
+{
+	//Disable blending, enable depth
+	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+}
+
+void prepareLightPass(void)
+{
+	//Disable depth, enable blending
+	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_ONE, GL_ONE);
 }

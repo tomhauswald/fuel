@@ -13,6 +13,8 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "../core/Util.h"
+#include "GLTexture.h"
 
 namespace fuel
 {
@@ -25,8 +27,8 @@ namespace fuel
 		// Attachment name
 		string name;
 
-		// OpenGL texture ID
-		GLuint texture;
+		// Attachment texture
+		GLTexture *pTexture;
 
 		// OpenGL texture format
 		GLenum textureFormat;
@@ -104,9 +106,9 @@ namespace fuel
 		inline uint16_t getHeight(void) const { return m_height; }
 
 		/**
-		 * Clears color and depth buffer of this framebuffer.
+		 * Clears color and depth buffer of the currently bound draw framebuffer.
 		 */
-		inline void clear(void) { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
+		static inline void clear(void) { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 
 		/**
 		 * Returns the number of attachment textures.
@@ -122,40 +124,22 @@ namespace fuel
 		 * Binds a FBO to use it.
 		 *
 		 * @param fbo
-		 * 		The framebuffer to bind
+		 * 		The framebuffer to bind.
 		 *
 		 * @param target
-		 * 		Bitvector determining which framebuffer targets to bind
-		 * 		this FBO to. (READ, WRITE, READ | WRITE)
+		 * 		Flags determining which framebuffer targets to bind the FBO to.
+		 * 		Specifying READ will load all color attachment textures into texture units 0,..,N-1.
+		 * 		Specifying DRAW will set this FBO to be the draw buffer.
+		 * 		By default (READ | DRAW) is passed, meaning that both operations are performed.
 		 */
-		static inline void bind(const GLFramebuffer &fbo, unsigned target = READ | DRAW)
-		{
-			if(target & READ)
-			{
-				glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
-
-				// Enable reading from color attachment textures
-				for (unsigned int i = 0 ; i < fbo.m_colorAttachmentCount; i++)
-				{
-					glActiveTexture(GL_TEXTURE0 + i);
-
-					// Bind textures
-					for(auto iter = fbo.m_attachments.begin(); iter != fbo.m_attachments.end(); ++iter)
-						if(iter->second.attachmentSlot == GL_COLOR_ATTACHMENT0 + i)
-							glBindTexture(GL_TEXTURE_2D, iter->second.texture);
-				}
-			}
-
-			if(target & DRAW) glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo.m_ID);
-		}
+		static void bind(const GLFramebuffer &fbo, unsigned target = READ | DRAW);
 
 		/**
-		 * Unbinds any FBO from the specified targets.
+		 * Binds the default draw framebuffer.
 		 */
-		static inline void unbind(unsigned target = READ | DRAW)
+		static inline void unbind(void)
 		{
-			if(target & READ) glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
-			if(target & DRAW) glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE);
 		}
 
 		/**

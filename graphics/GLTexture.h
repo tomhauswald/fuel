@@ -10,7 +10,7 @@
 #define GRAPHICS_GLTEXTURE_H_
 
 #include "GLWindow.h"
-#include <SOIL.h>
+#include <vector>
 
 namespace fuel
 {
@@ -67,17 +67,40 @@ namespace fuel
 		inline uint16_t getHeight(void) const { return m_height; }
 
 		/**
-		 * Binds the given texture to the GL_TEXTURE_2D target.
+		 * Binds the given texture to the GL_TEXTURE_2D target of the texture unit specified.
+		 *
+		 * @param unit
+		 * 		Texture unit to bind texture to.
 		 *
 		 * @param txr
 		 * 		Texture to bind.
 		 */
-		static inline void bind(const GLTexture &txr) { glBindTexture(GL_TEXTURE_2D, txr.m_ID); }
+		static inline void bind(GLint unit, const GLTexture &txr)
+		{
+			glActiveTexture(GL_TEXTURE0 + unit);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, txr.m_ID);
+		}
 
 		/**
-		 * Unbinds any texture from the GL_TEXTURE_2D target.
+		 * Unbinds any texture from the GL_TEXTURE_2D target of the texture unit specified.
+		 *
+		 * @param unit
+		 * 		Texture unit to unbind texture from.
 		 */
-		static inline void unbind(void){ glBindTexture(GL_TEXTURE_2D, GL_NONE); }
+		static inline void unbind(GLint unit){ glActiveTexture(GL_TEXTURE0 + unit); glBindTexture(GL_TEXTURE_2D, GL_NONE); }
+
+		/**
+		 * Unbinds any texture from the GL_TEXTURE_2D target of the texture units specified.
+		 *
+		 * @param units
+		 * 		Vector containing texture unit IDs to unbind textures from.
+		 */
+		static inline void unbind(const vector<GLint> &units)
+		{
+			for(GLint unit : units)
+				unbind(unit);
+		}
 
 		/**
 		 * Delete the OpenGL texture object.

@@ -59,21 +59,20 @@ namespace fuel
 		// Get FBO attachment slot for the new texture
 		GLenum slot = findAttachmentSlot(txrFormat);
 
-		GLuint texture;
-		glGenTextures(1, &texture);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, txrFormat, m_width, m_height, 0, colorFormat, datatype, nullptr);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		GLTexture *pTexture = new GLTexture();
+		GLTexture::bind(0, *pTexture);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, slot, GL_TEXTURE_2D, texture, 0);
-		glBindTexture(GL_TEXTURE_2D, GL_NONE);
+	    glTexImage2D(GL_TEXTURE_2D, 0, txrFormat, m_width, m_height, 0, colorFormat, datatype, nullptr);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, slot, GL_TEXTURE_2D, pTexture->getID(), 0);
+		GLTexture::unbind(0);
 
 		// Construct new FBO attachment
 		GLFramebufferAttachment fboAttachment;
 		fboAttachment.name = attachment;
-		fboAttachment.texture = texture;
+		fboAttachment.pTexture = pTexture;
 		fboAttachment.textureFormat = txrFormat;
 		fboAttachment.colorFormat = colorFormat;
 		fboAttachment.datatype = datatype;
@@ -94,25 +93,41 @@ namespace fuel
 		glDrawBuffers(buffers.size(), &buffers[0]);
 	}
 
+	void GLFramebuffer::bind(const GLFramebuffer &fbo, unsigned target)
+	{
+		if(target & READ)
+		{
+			// Enable reading from color attachment textures
+			for (unsigned int i = 0 ; i < fbo.m_colorAttachmentCount; i++)
+			{
+				// Bind textures
+				for(auto iter = fbo.m_attachments.begin(); iter != fbo.m_attachments.end(); ++iter)
+				{
+					if(iter->second.attachmentSlot == GL_COLOR_ATTACHMENT0 + i)
+					{
+						GLTexture::bind(i, *(iter->second.pTexture));
+						continue;
+					}
+				}
+			}
+		}
+
+		if(target & DRAW) glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo.m_ID);
+	}
+
 	void GLFramebuffer::showAttachmentContent(const string &attachment, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 	{
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_ID);
-		glReadBuffer(this->getAttachment(attachment).attachmentSlot);
+		glReadBuffer(getAttachment(attachment).attachmentSlot);
 		glBlitFramebuffer(0, 0, m_width, m_height, x, y, x+w, y+h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
-		glReadBuffer(GL_COLOR_ATTACHMENT0);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
 	}
 
 	GLFramebuffer::~GLFramebuffer(void)
 	{
 		// Delete attachment textures
-		for(const auto &attachment : m_attachments)
-		{
-			if(attachment.second.texture != GL_NONE)
-			{
-				glDeleteTextures(1, &attachment.second.texture);
-			}
-		}
+		for(auto &attachment : m_attachments)
+			delete attachment.second.pTexture;
 		m_attachments.clear();
 
 		// Delete FBO itself

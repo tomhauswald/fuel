@@ -21,5 +21,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/random.hpp>
+constexpr float PI = 3.14159265359f;
 
 #endif // GRAPHICS_GLCALLS_H_

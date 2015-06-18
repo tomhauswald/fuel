@@ -35,22 +35,40 @@ namespace fuel
 		glUniform1f(m_location, value);
 	}
 
-	// Get as unsigned integer
+	// Get as signed integer (e.g. texture unit)
 	template<>
-	uint32_t GLUniform::get<uint32_t>(void)
+	GLint GLUniform::get<GLint>(void)
 	{
 		ensureParentUsage();
-		GLuint value;
-		glGetUniformuiv(m_parentProgramID, m_location, &value);
+		GLint value;
+		glGetUniformiv(m_parentProgramID, m_location, &value);
 		return value;
 	}
 
-	// Set as unsigned integer
+	// Set as signed integer (e.g. texture unit)
 	template<>
-	void GLUniform::set<uint32_t>(const uint32_t &value)
+	void GLUniform::set<GLint>(const GLint &value)
 	{
 		ensureParentUsage();
-		glUniform1ui(m_location, value);
+		glUniform1i(m_location, value);
+	}
+
+	// Get as 3D vector
+	template<>
+	glm::vec3 GLUniform::get<glm::vec3>(void)
+	{
+		ensureParentUsage();
+		GLfloat values[3];
+		glGetUniformfv(m_parentProgramID, m_location, values);
+		return glm::make_vec3(values);
+	}
+
+	// Set as 3D vector
+	template<>
+	void GLUniform::set<glm::vec3>(const glm::vec3 &value)
+	{
+		ensureParentUsage();
+		glUniform3fv(m_location, 1, glm::value_ptr(value));
 	}
 
 	// Get as 4x4 matrix
