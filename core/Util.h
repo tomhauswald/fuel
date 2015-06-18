@@ -14,6 +14,7 @@
 #include <utility>
 #include <cstdio>
 #include <vector>
+#include <cmath>
 
 // Macro shortcut to create a const-qualified by-const-reference getter.
 #define CONSTREF_GETTER(TYPE, FIELD, NAME) inline const TYPE &NAME(void) const{ return FIELD; }
@@ -26,6 +27,15 @@
 
 // Macro shortcut to create a by-const-reference setter.
 #define SETTER(TYPE, FIELD, ARG, NAME) inline void NAME(const TYPE &ARG){ FIELD = ARG; }
+
+// Print message to std::cout and append endl
+#define COUTLN(STRING) std::cout << STRING << std::endl
+
+// Print message to std::cerr and append endl
+#define CERRLM(STRING) std::cerr << STRING << std::endl
+
+// Clamp a value between minimum and maximum
+#define CLAMP(VALUE, MIN, MAX) (std::min(MAX, std::max(MIN, VALUE)))
 
 namespace fuel
 {

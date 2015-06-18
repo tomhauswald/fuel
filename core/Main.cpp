@@ -13,7 +13,7 @@
 #include "../graphics/GLTexture.h"
 #include "../graphics/shaders/GLShaderProgram.h"
 #include "../input/Keyboard.h"
-#include "Transform.h"
+#include "../graphics/lighting/PointLight.h"
 
 using namespace fuel;
 
@@ -57,6 +57,7 @@ int main(int argc, char **argv)
 	deferredShader.registerUniform("uWorld");
 	deferredShader.registerUniform("uDiffuseTexture");
 
+	// Calculate camera matrices
 	float aspectRatio = window.getWidth() / (float)window.getHeight();
 	glm::mat4 projection = glm::perspective(45.0f, aspectRatio, 0.1f, 100.0f);
 	glm::mat4 view       = glm::lookAt(
@@ -65,6 +66,14 @@ int main(int argc, char **argv)
 	    glm::vec3(0,1,0)
 	);
 	glm::mat4 viewProjection = projection * view;
+
+	// Test point light
+	PointLight pointLight;
+	pointLight.position = {0, 0, 0};
+	pointLight.color = {1, 0, 0};
+	pointLight.linearAttenuation = 0.1f;
+	pointLight.quadraticAttenuation = 0.03f;
+	COUTLN(pointLight.getRadius());
 
 	// Cube transforms
 	Transform cubeTransforms[50];
