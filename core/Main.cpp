@@ -68,7 +68,19 @@ int main(int argc, char **argv)
 	deferredShader.registerUniform("uDiffuseTexture");
 	deferredShader.getUniform("uDiffuseTexture").set(0);
 
-	// Pointlight shader
+	// Ambient light shader
+	GLShaderProgram ambientLightShader;
+	ambientLightShader.setShader(EGLShaderType::VERTEX,   "res/glsl/fullscreen.vert");
+	ambientLightShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/ambient.frag");
+	ambientLightShader.bindVertexAttribute(0, "vPosition");
+	ambientLightShader.bindVertexAttribute(1, "vTexCoord");
+	ambientLightShader.link();
+	ambientLightShader.registerUniform("uColor");
+	ambientLightShader.registerUniform("uIntensity");
+	ambientLightShader.getUniform("uColor").set<glm::vec3>({0, 0, 0});
+	ambientLightShader.getUniform("uIntensity").set(1);
+
+	// Point light shader
 	GLShaderProgram pointLightShader;
 	pointLightShader.setShader(EGLShaderType::VERTEX,   "res/glsl/fullscreen.vert");
 	pointLightShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/pointlight.frag");
@@ -88,14 +100,16 @@ int main(int argc, char **argv)
 	pointLightShader.getUniform("uNormalTexture").set(2);
 
 	srand(time(nullptr));
-	vector<PointLight> pointLights;
-	for(unsigned light=0; light<5; light++) // generate lights
-	{
-		pointLights.push_back(PointLight());
-		pointLights[light].position = {-10 + rand() % 20, -10 + rand() % 20, -10 + rand() % 20};
-		pointLights[light].color = {rand() / (float)RAND_MAX, rand() / (float)RAND_MAX, rand() / (float)RAND_MAX};
-		pointLights[light].setRadius(0.01f, 10 + rand() % 30);
-	}
+	vector<PointLight> pointLights(3);
+	pointLights[0].position = {-2.5f, 0, 1.5f};
+	pointLights[0].color = {1, 0, 0};
+	pointLights[0].setRadius(0.001f, 15);
+	pointLights[1].position = {0, 0, 1.5f};
+	pointLights[1].color = {0, 1, 0};
+	pointLights[1].setRadius(0.001f, 15);
+	pointLights[2].position = {2.5f, 0, 1.5f};
+	pointLights[2].color = {0, 0, 1};
+	pointLights[2].setRadius(0.001f, 15);
 
 	// Fullscreen quad VAO
 	GLVertexArray fullscreenQuadVertexArray(2);
@@ -181,12 +195,18 @@ int main(int argc, char **argv)
 			GLFramebuffer::unbind();
 			glClear(GL_COLOR_BUFFER_BIT);
 			prepareLightPass();
-			pointLightShader.use();
+
 			{ // Fullscreen passes
 
 				GLVertexArray::bind(fullscreenQuadVertexArray);
 				GLFramebuffer::bind(deferredFramebuffer, GLFramebuffer::READ);
 
+				// Ambient pass
+				ambientLightShader.use();
+				glDrawArrays(GL_QUADS, 0, 4);
+
+				// Point light passes
+				pointLightShader.use();
 				for(unsigned light=0; light<pointLights.size(); light++)
 				{
 					pointLightShader.getUniform("uPosition").set(pointLights[light].position);

@@ -18,19 +18,30 @@ in vec2 fTexCoord;
 //Output: Pixel color
 out vec4 pColor;
 
-float getIntensity(float distance)
+float getIntensity()
 {
-	return 1.0f / (1.0f + distance * uLinearAttenuation + distance * distance * uQuadraticAttenuation);
-}
+	//Offset vector from light source
+	vec3 offset = uPosition - texture(uPositionTexture, fTexCoord).xyz;
 
-void main( void )
-{
-	vec3  offset = uPosition - texture( uPositionTexture, fTexCoord ).xyz;
+	//Distance from light
 	float distance = length(offset);
 	if(distance > uRadius) discard;
 
-	float dot = dot( offset, normalize( texture( uNormalTexture, fTexCoord ).xyz) );
+	//Surface normal
+	vec3 normal = normalize(texture(uNormalTexture, fTexCoord).xyz);
 
-	//Sample the texture
-	pColor = vec4( max(dot, 0.0f) * getIntensity(distance) * mix( uColor, texture( uDiffuseTexture, fTexCoord ).rgb, 0.5f ), 1.0f );
+	float i = 1.0f / (1.0f + distance * uLinearAttenuation + distance * distance * uQuadraticAttenuation);
+	i *= dot(offset, normal);
+	return max(i, 0.0f);
+}
+
+vec3 getColor()
+{
+	//Return product of diffuse and light color
+	return uColor * texture(uDiffuseTexture, fTexCoord).rgb;
+}
+
+void main( void )
+{	
+	pColor = vec4(getIntensity() * getColor(), 1.0f);
 }
