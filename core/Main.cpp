@@ -17,6 +17,11 @@
 #include "../graphics/lighting/PointLight.h"
 #include "../graphics/Camera.h"
 
+#define AMBIENT_PASS
+#define DIRECTIONAL_PASS
+#define POINT_PASS
+#define SHOW_GBUFFER_TEXTURES
+
 using namespace fuel;
 
 void prepareGeometryPass(void);
@@ -25,7 +30,7 @@ void prepareLightPass(void);
 
 int main(int argc, char **argv)
 {
-	GLWindow window({1280, 720, false});
+	GLWindow window({3840, 2160, true});
 	Keyboard keyboard(window);
 
 	// Setup camera
@@ -57,8 +62,8 @@ int main(int argc, char **argv)
 
 	// Deferred shader (targeting multiple output textures: gbuffer)
 	GLShaderProgram deferredShader;
-	deferredShader.setShader(EGLShaderType::VERTEX,   "res/glsl/deferred.vert");
-	deferredShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/deferred.frag");
+	deferredShader.setShader(EGLShaderType::VERTEX,   		"res/glsl/deferred.vert");
+	deferredShader.setShader(EGLShaderType::FRAGMENT, 		"res/glsl/deferred.frag");
 	deferredShader.bindVertexAttribute(0, "vPosition");
 	deferredShader.bindVertexAttribute(1, "vNormal");
 	deferredShader.bindVertexAttribute(2, "vTexCoord");
@@ -70,23 +75,41 @@ int main(int argc, char **argv)
 
 	// Ambient light shader
 	GLShaderProgram ambientLightShader;
-	ambientLightShader.setShader(EGLShaderType::VERTEX,   "res/glsl/fullscreen.vert");
-	ambientLightShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/ambient.frag");
+	ambientLightShader.setShader(EGLShaderType::VERTEX,   	"res/glsl/fullscreen.vert");
+	ambientLightShader.setShader(EGLShaderType::FRAGMENT, 	"res/glsl/ambient.frag");
 	ambientLightShader.bindVertexAttribute(0, "vPosition");
 	ambientLightShader.bindVertexAttribute(1, "vTexCoord");
 	ambientLightShader.link();
+	ambientLightShader.registerUniform("uDiffuseTexture");
 	ambientLightShader.registerUniform("uColor");
-	ambientLightShader.registerUniform("uIntensity");
-	ambientLightShader.getUniform("uColor").set<glm::vec3>({0, 0, 0});
-	ambientLightShader.getUniform("uIntensity").set(1);
+	ambientLightShader.getUniform("uDiffuseTexture").set(0);
+	ambientLightShader.getUniform("uColor").set(glm::vec3(1.0f, 0.9f, 0.5f) / 16.0f);
+
+	// Directional light shader
+	GLShaderProgram dirLightShader;
+	dirLightShader.setShader(EGLShaderType::VERTEX,			"res/glsl/fullscreen.vert");
+	dirLightShader.setShader(EGLShaderType::FRAGMENT,		"res/glsl/directional.frag");
+	dirLightShader.bindVertexAttribute(0, "vPosition");
+	dirLightShader.bindVertexAttribute(1, "vTexCoord");
+	dirLightShader.link();
+	dirLightShader.registerUniform("uDiffuseTexture");
+	dirLightShader.registerUniform("uNormalTexture");
+	dirLightShader.registerUniform("uColor");
+	dirLightShader.registerUniform("uDirection");
+	dirLightShader.getUniform("uDiffuseTexture").set(0);
+	dirLightShader.getUniform("uNormalTexture").set(2);
+	dirLightShader.getUniform("uColor").set(glm::vec3(1.0f, 0.9f, 0.5f) / 1.75f);
+	dirLightShader.getUniform("uDirection").set(glm::normalize(glm::vec3(1, -1, -1)));
 
 	// Point light shader
 	GLShaderProgram pointLightShader;
-	pointLightShader.setShader(EGLShaderType::VERTEX,   "res/glsl/fullscreen.vert");
-	pointLightShader.setShader(EGLShaderType::FRAGMENT, "res/glsl/pointlight.frag");
+	pointLightShader.setShader(EGLShaderType::VERTEX,   	"res/glsl/fullscreen.vert");
+	pointLightShader.setShader(EGLShaderType::FRAGMENT, 	"res/glsl/pointlight.frag");
 	pointLightShader.bindVertexAttribute(0, "vPosition");
 	pointLightShader.bindVertexAttribute(1, "vTexCoord");
 	pointLightShader.link();
+	pointLightShader.registerUniform("uViewProjection");
+	pointLightShader.registerUniform("uCameraPosition");
 	pointLightShader.registerUniform("uDiffuseTexture");
 	pointLightShader.registerUniform("uPositionTexture");
 	pointLightShader.registerUniform("uNormalTexture");
@@ -104,7 +127,7 @@ int main(int argc, char **argv)
 	pointLights[0].position = {-2.5f, 0, 1.5f};
 	pointLights[0].color = {1, 0, 0};
 	pointLights[0].setRadius(0.001f, 15);
-	pointLights[1].position = {0, 0, 1.5f};
+	pointLights[1].position = {0, 0, -1.5f};
 	pointLights[1].color = {0, 1, 0};
 	pointLights[1].setRadius(0.001f, 15);
 	pointLights[2].position = {2.5f, 0, 1.5f};
@@ -157,7 +180,9 @@ int main(int argc, char **argv)
 
 		float freq = 90.0f;
 		cubeTransforms[0].getRotation().y =  time * freq;
+		cubeTransforms[0].getRotation().x =  time * (freq / sqrt(2));
 		cubeTransforms[1].getRotation().y = -time * freq;
+		cubeTransforms[1].getRotation().z =  time * (freq / sqrt(2));
 
 		window.prepare();
 
@@ -201,12 +226,23 @@ int main(int argc, char **argv)
 				GLVertexArray::bind(fullscreenQuadVertexArray);
 				GLFramebuffer::bind(deferredFramebuffer, GLFramebuffer::READ);
 
+#ifdef AMBIENT_PASS
 				// Ambient pass
 				ambientLightShader.use();
 				glDrawArrays(GL_QUADS, 0, 4);
+#endif
 
+#ifdef DIRECTIONAL_PASS
+				// Directional light pass
+				dirLightShader.use();
+				glDrawArrays(GL_QUADS, 0, 4);
+#endif
+
+#ifdef POINT_PASS
 				// Point light passes
 				pointLightShader.use();
+				pointLightShader.getUniform("uViewProjection").set(projection * camera.calculateViewMatrix());
+				pointLightShader.getUniform("uCameraPosition").set(camera.getTransform().getPosition());
 				for(unsigned light=0; light<pointLights.size(); light++)
 				{
 					pointLightShader.getUniform("uPosition").set(pointLights[light].position);
@@ -216,18 +252,20 @@ int main(int argc, char **argv)
 					pointLightShader.getUniform("uQuadraticAttenuation").set(pointLights[light].quadraticAttenuation);
 					glDrawArrays(GL_QUADS, 0, 4);
 				}
-
+#endif
 				GLTexture::unbind({0, 1, 2});
 				GLVertexArray::unbind();
 			}
 
+#ifdef SHOW_GBUFFER_TEXTURES
 			glUseProgram(GL_NONE);
 			prepareGeometryPass();
 			// Render downsampled gbuffer textures as overlay
-			static constexpr uint16_t previewWidth = 114, previewHeight = 64;
+			static constexpr uint16_t previewWidth = 144, previewHeight = 90;
 			deferredFramebuffer.showAttachmentContent("diffuse",    		 0, previewHeight, previewWidth, previewHeight);
 			deferredFramebuffer.showAttachmentContent("position",   		 0, 		    0, previewWidth, previewHeight);
 			deferredFramebuffer.showAttachmentContent("normal",   previewWidth,  		    0, previewWidth, previewHeight);
+#endif
 		}
 
 		window.display();
