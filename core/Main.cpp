@@ -17,10 +17,12 @@
 #include "../graphics/lighting/PointLight.h"
 #include "../graphics/Camera.h"
 
-#define AMBIENT_PASS
-#define DIRECTIONAL_PASS
-#define POINT_PASS
-#define SHOW_GBUFFER_TEXTURES
+#define RESOLUTION_X		 	1600
+#define RESOLUTION_Y 			900
+#define AMBIENT_PASS			1
+#define DIRECTIONAL_PASS		1
+#define POINT_PASS				1
+#define SHOW_GBUFFER_TEXTURES	1
 
 using namespace fuel;
 
@@ -30,7 +32,7 @@ void prepareLightPass(void);
 
 int main(int argc, char **argv)
 {
-	GLWindow window({3840, 2160, true});
+	GLWindow window({RESOLUTION_X, RESOLUTION_Y, true});
 	Keyboard keyboard(window);
 
 	// Setup camera
@@ -226,19 +228,19 @@ int main(int argc, char **argv)
 				GLVertexArray::bind(fullscreenQuadVertexArray);
 				GLFramebuffer::bind(deferredFramebuffer, GLFramebuffer::READ);
 
-#ifdef AMBIENT_PASS
+#if AMBIENT_PASS
 				// Ambient pass
 				ambientLightShader.use();
 				glDrawArrays(GL_QUADS, 0, 4);
 #endif
 
-#ifdef DIRECTIONAL_PASS
+#if DIRECTIONAL_PASS
 				// Directional light pass
 				dirLightShader.use();
 				glDrawArrays(GL_QUADS, 0, 4);
 #endif
 
-#ifdef POINT_PASS
+#if POINT_PASS
 				// Point light passes
 				pointLightShader.use();
 				pointLightShader.getUniform("uViewProjection").set(projection * camera.calculateViewMatrix());
@@ -257,11 +259,11 @@ int main(int argc, char **argv)
 				GLVertexArray::unbind();
 			}
 
-#ifdef SHOW_GBUFFER_TEXTURES
+#if SHOW_GBUFFER_TEXTURES
 			glUseProgram(GL_NONE);
 			prepareGeometryPass();
 			// Render downsampled gbuffer textures as overlay
-			static constexpr uint16_t previewWidth = 144, previewHeight = 90;
+			static constexpr uint16_t previewWidth = 160, previewHeight = 90;
 			deferredFramebuffer.showAttachmentContent("diffuse",    		 0, previewHeight, previewWidth, previewHeight);
 			deferredFramebuffer.showAttachmentContent("position",   		 0, 		    0, previewWidth, previewHeight);
 			deferredFramebuffer.showAttachmentContent("normal",   previewWidth,  		    0, previewWidth, previewHeight);

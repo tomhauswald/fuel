@@ -119,7 +119,7 @@ namespace fuel
 	{
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_ID);
 		glReadBuffer(getAttachment(attachment).attachmentSlot);
-		glBlitFramebuffer(0, 0, m_width, m_height, x, y, x+w, y+h, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+		glBlitFramebuffer(0, 0, m_width, m_height, x, y, x+w, y+h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
 	}
 
