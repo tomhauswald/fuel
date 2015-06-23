@@ -6,16 +6,8 @@
  *****************************************************************
  *****************************************************************/
 
-#include <cstdlib>
-#include "Util.h"
-#include "../graphics/GLWindow.h"
-#include "../graphics/GLVertexArray.h"
-#include "../graphics/GLFramebuffer.h"
-#include "../graphics/GLTexture.h"
-#include "../graphics/shaders/GLShaderProgram.h"
-#include "../input/Keyboard.h"
+#include "Game.h"
 #include "../graphics/lighting/PointLight.h"
-#include "../graphics/Camera.h"
 
 #define RESOLUTION_X		 	1600
 #define RESOLUTION_Y 			900
@@ -26,28 +18,15 @@
 
 using namespace fuel;
 
-void prepareGeometryPass(void);
-
-void prepareLightPass(void);
-
 int main(int argc, char **argv)
 {
-	GLWindow window({RESOLUTION_X, RESOLUTION_Y, true});
-	Keyboard keyboard(window);
+	Game game;
+	game.run();
 
-	// Setup camera
-	Camera camera;
-	camera.getTransform().setPosition({0, 0, 5});
+	return 0;
+}
 
-	// Framebuffer
-	GLFramebuffer deferredFramebuffer(window.getWidth(), window.getHeight());
-	GLFramebuffer::bind(deferredFramebuffer);
-	deferredFramebuffer.attach("depth",    GL_DEPTH_COMPONENT32F);
-	deferredFramebuffer.attach("diffuse",  GL_RGB32F);
-	deferredFramebuffer.attach("position", GL_RGB32F);
-	deferredFramebuffer.attach("normal",   GL_RGB32F);
-	deferredFramebuffer.setDrawAttachments({"diffuse", "position", "normal"});
-	GLFramebuffer::unbind();
+/*
 
 	// Cube index buffer
 	GLBuffer cubeIndexBuffer(GL_ELEMENT_ARRAY_BUFFER);
@@ -228,19 +207,14 @@ int main(int argc, char **argv)
 				GLVertexArray::bind(fullscreenQuadVertexArray);
 				GLFramebuffer::bind(deferredFramebuffer, GLFramebuffer::READ);
 
-#if AMBIENT_PASS
 				// Ambient pass
 				ambientLightShader.use();
 				glDrawArrays(GL_QUADS, 0, 4);
-#endif
 
-#if DIRECTIONAL_PASS
 				// Directional light pass
 				dirLightShader.use();
 				glDrawArrays(GL_QUADS, 0, 4);
-#endif
 
-#if POINT_PASS
 				// Point light passes
 				pointLightShader.use();
 				pointLightShader.getUniform("uViewProjection").set(projection * camera.calculateViewMatrix());
@@ -254,20 +228,18 @@ int main(int argc, char **argv)
 					pointLightShader.getUniform("uQuadraticAttenuation").set(pointLights[light].quadraticAttenuation);
 					glDrawArrays(GL_QUADS, 0, 4);
 				}
-#endif
+
 				GLTexture::unbind({0, 1, 2});
 				GLVertexArray::unbind();
 			}
 
-#if SHOW_GBUFFER_TEXTURES
 			glUseProgram(GL_NONE);
 			prepareGeometryPass();
 			// Render downsampled gbuffer textures as overlay
 			static constexpr uint16_t previewWidth = 160, previewHeight = 90;
 			deferredFramebuffer.showAttachmentContent("diffuse",    		 0, previewHeight, previewWidth, previewHeight);
 			deferredFramebuffer.showAttachmentContent("position",   		 0, 		    0, previewWidth, previewHeight);
-			deferredFramebuffer.showAttachmentContent("normal",   previewWidth,  		    0, previewWidth, previewHeight);
-#endif
+			deferredFramebuffer.showAttachmentContent("depth",   previewWidth,  		    0, previewWidth, previewHeight);
 		}
 
 		window.display();
@@ -296,3 +268,5 @@ void prepareLightPass(void)
 	glBlendEquation(GL_FUNC_ADD);
 	glBlendFunc(GL_ONE, GL_ONE);
 }
+
+*/
