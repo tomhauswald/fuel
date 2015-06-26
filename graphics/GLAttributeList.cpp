@@ -6,11 +6,14 @@
  *****************************************************************
  *****************************************************************/
 
+#include <iostream>
 #include "../core/Util.h"
 #include "GLAttributeList.h"
 
 namespace fuel
 {
+	using namespace std;
+
 	GLAttributeList::GLAttributeList(GLuint id)
 		:m_ID(id)
 	{

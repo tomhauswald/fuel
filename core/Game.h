@@ -31,6 +31,9 @@ namespace fuel
 		// Keyboard
 		Keyboard m_keyboard;
 
+		// Projection matrix
+		glm::mat4 m_projection;
+
 		// Main camera
 		Camera m_camera;
 
@@ -47,7 +50,19 @@ namespace fuel
 		GLVertexArray m_fullscreenQuadVAO;
 
 		// Scene root
-		shared_ptr<GameComponent> m_pSceneRoot;
+		GameComponent *m_pSceneRoot;
+
+		// Time slept in seconds
+		float m_sleepTime;
+
+		// Time taken for updated in seconds
+		float m_updateTime;
+
+		// Time taken for geometry rendering in seconds
+		float m_geomRenderTime;
+
+		// Time taken for fullscreen passes in seconds
+		float m_fsRenderTime;
 
 		/**
 		 * Updates the current scene.
@@ -74,13 +89,15 @@ namespace fuel
 		void prepareFullscreenPasses(void);
 
 		/**
+		 * Prepares the renderer for following GUI passes.
+		 * Binds the deferred FBO for reading and enables depth.
+		 */
+		void prepareGUIPasses(void);
+
+		/**
 		 * Renders a fullscreen quad.
 		 */
-		inline void renderFullscreenQuad(void)
-		{
-			GLVertexArray::bind(m_fullscreenQuadVAO);
-			glDrawArrays(GL_QUADS, 0, 4);
-		}
+		inline void renderFullscreenQuad(void){ m_window.renderGeometry(m_fullscreenQuadVAO, 4, GL_QUADS); }
 
 	public:
 		/**
@@ -149,7 +166,7 @@ namespace fuel
 		 *
 		 * @return Scene root.
 		 */
-		inline shared_ptr<GameComponent> &getSceneRoot(void){ return m_pSceneRoot; }
+		inline GameComponent &getSceneRoot(void){ return *m_pSceneRoot; }
 
 		/**
 		 * Sets the scene root game object.
@@ -157,10 +174,34 @@ namespace fuel
 		 * @param root
 		 * 		The new scene root.
 		 */
-		inline void setSceneRoot(shared_ptr<GameComponent> &root){ m_pSceneRoot = root; }
+		inline void setSceneRoot(GameComponent *root){ m_pSceneRoot = root; }
 
 		/**
-		 * Releases any resources.
+		 * Returns the projection matrix.
+		 *
+		 * @return
+		 * 		The projection matrix.
+		 */
+		inline const glm::mat4 &getProjectionMatrix(void) const{ return m_projection; }
+
+		/**
+		 * Sets the projection matrix.
+		 *
+		 * @param projection
+		 *		New projection matrix.
+		 */
+		inline void setProjectionMatrix(const glm::mat4 &projection){ m_projection = projection; }
+
+		/**
+		 * Returns the view-projection-matrix.
+		 *
+		 * @return
+		 *		View-projection-matrix. (P x V)
+		 */
+		glm::mat4 calculateViewProjectionMatrix(void);
+
+		/**
+		 * Releases any resources and destroy scene root.
 		 */
 		virtual ~Game(void) = default;
 	};

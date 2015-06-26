@@ -5,6 +5,7 @@
  *      Author: HAUSWALD, Tom
  */
 
+#include "Game.h"
 #include "GameComponent.h"
 #include <iostream>
 
@@ -12,38 +13,22 @@ namespace fuel
 {
 	using namespace std;
 
-	void GameComponent::update(float dt)
+	void GameComponent::update(Game &game, float dt)
 	{
-		cout << "GameComponent::update(float dt)" << endl;
-		forEachChild([dt](GameComponent &child)
-		{
-			child.update(dt);
-		});
+		for(auto &child : m_pChildren)
+			child.second->update(game, dt);
 	}
 
-	void GameComponent::render(void)
+	void GameComponent::render(Game &game)
 	{
-
-		forEachChild([](GameComponent &child)
-		{
-			child.render();
-		});
+		for(auto &child : m_pChildren)
+			child.second->render(game);
 	}
 
-	void GameComponent::gui(void)
+	void GameComponent::gui(Game &game)
 	{
-		forEachChild([](GameComponent &child)
-		{
-			child.gui();
-		});
-	}
-
-	GameComponent::~GameComponent(void)
-	{
-		forEachChild([](GameComponent &child)
-		{
-			delete &child;
-		});
+		for(auto &child : m_pChildren)
+			child.second->gui(game);
 	}
 }
 

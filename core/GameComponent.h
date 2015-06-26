@@ -14,6 +14,8 @@
 
 namespace fuel
 {
+	class Game;
+
 	class GameComponent
 	{
 	private:
@@ -27,7 +29,7 @@ namespace fuel
 		/**
 		 * Returns the parent component
 		 */
-		inline std::shared_ptr<GameComponent> &getParent(void){ return m_pParent; }
+		inline std::shared_ptr<GameComponent> getParent(void){ return m_pParent; }
 
 		/**
 		 * Returns the child with the given name.
@@ -35,7 +37,7 @@ namespace fuel
 		 * @param name
 		 * 		Child name.
 		 */
-		inline std::shared_ptr<GameComponent> &getChild(const std::string &name){ return m_pChildren[name]; }
+		inline std::shared_ptr<GameComponent> getChild(const std::string &name){ return m_pChildren[name]; }
 
 		/**
 		 * Perform the specified closure on all child components.
@@ -53,30 +55,54 @@ namespace fuel
 		}
 
 		/**
+		 * Adds a child to this game component.
+		 *
+		 * @param name
+		 * 		Name of the child for later referral.
+		 *
+		 * @param child
+		 * 		Child object.
+		 */
+		inline void addChild(const std::string &name, std::shared_ptr<GameComponent> child)
+		{
+			std::shared_ptr<GameComponent> gc(child);
+			m_pChildren.insert({name, gc});
+		}
+
+		/**
 		 * Updates this game component and all its children.
 		 * This is called each frame.
+		 *
+		 * @param game
+		 * 		Parent game.
 		 *
 		 * @param dt
 		 * 		Time passed since last frame in seconds.
 		 */
-		virtual void update(float dt);
+		virtual void update(Game &game, float dt);
 
 		/**
 		 * Renders this game component and all its children.
 		 * This is called each frame.
+		 *
+		 * @param game
+		 * 		Parent game.
 		 */
-		virtual void render(void);
+		virtual void render(Game &game);
 
 		/**
 		 * Renders any overlays that need to be drawn after
 		 * all fullscreen effects have been performed.
+		 *
+		 * @param game
+		 * 		Parent game.
 		 */
-		virtual void gui(void);
+		virtual void gui(Game &game);
 
 		/**
 		 * Destroys all children.
 		 */
-		virtual ~GameComponent(void);
+		virtual ~GameComponent(void) = default;
 	};
 }
 

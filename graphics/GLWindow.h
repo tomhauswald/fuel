@@ -10,7 +10,7 @@
 #define GRAPHICS_GLWINDOW_H_
 
 #include <iostream>
-#include "GLCalls.h"
+#include "GLVertexArray.h"
 #include "GLWindowSettings.h"
 
 namespace fuel
@@ -67,6 +67,46 @@ namespace fuel
 		 * Tells the window to close.
 		 */
 		inline void close(void){ glfwSetWindowShouldClose(m_pWindow, GL_TRUE); }
+
+		/**
+		 * Renders geometry using a vertex array and an index buffer.
+		 *
+		 * @param vao
+		 * 		Vertex array.
+		 *
+		 * @param ibo
+		 * 		Index buffer.
+		 *
+		 * @param glIndexType
+		 * 		OpenGL type identifier of indices.
+		 *
+		 * @param primitive
+		 * 		Primitive type.
+		 *
+		 * @param INDEX_TYPE
+		 * 		Type of the index buffer elements.
+		 */
+		template<typename INDEX_TYPE>
+		void renderGeometry(GLVertexArray &vao, GLBuffer &ibo, GLenum glIndexType, GLenum primitive = GL_TRIANGLES)
+		{
+			GLVertexArray::bind(vao);
+			GLBuffer::bind(ibo);
+			glDrawElements(primitive, ibo.getElementCount<INDEX_TYPE>(), glIndexType, nullptr);
+		}
+
+		/**
+		 * Renders geometry using a vertex array.
+		 *
+		 * @param vao
+		 * 		Vertex array.
+		 *
+		 * @param verts
+		 * 		Number of vertices.
+		 *
+		 * @param primitive
+		 *		Primitive type.
+		 */
+		void renderGeometry(GLVertexArray &vao, unsigned verts, GLenum primitive = GL_TRIANGLES);
 
 		/**
 		 * Prepares the window to draw the next frame.

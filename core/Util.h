@@ -15,6 +15,11 @@
 #include <cstdio>
 #include <vector>
 #include <cmath>
+#include <iostream>
+
+#ifdef __WIN32__
+#include <windows.h>
+#endif
 
 // Macro shortcut to create a const-qualified by-const-reference getter.
 #define CONSTREF_GETTER(TYPE, FIELD, NAME) inline const TYPE &NAME(void) const{ return FIELD; }
@@ -32,7 +37,7 @@
 #define COUTLN(STRING) std::cout << STRING << std::endl
 
 // Print message to std::cerr and append endl
-#define CERRLM(STRING) std::cerr << STRING << std::endl
+#define CERRLN(STRING) std::cerr << STRING << std::endl
 
 // Clamp a value between minimum and maximum
 #define CLAMP(VALUE, MIN, MAX) (std::min(MAX, std::max(MIN, VALUE)))
@@ -85,6 +90,32 @@ namespace fuel
 	{
 		if(FILE *file = fopen(filename.c_str(), "r")) { fclose(file); return true; }
 		return false;
+	}
+
+	/**
+	 * Sleeps for the given number of seconds.
+	 *
+	 * @param seconds
+	 *		Seconds to sleep.
+	 */
+	inline void sleepSeconds(float seconds)
+	{
+		#ifdef __WIN32__
+			static unsigned timerResolution = 0xFFFFFFFF;
+			if(timerResolution > 5)
+			{
+				TIMECAPS tc;
+				timeGetDevCaps(&tc, sizeof(TIMECAPS));
+				timerResolution = std::min(std::max(tc.wPeriodMin, 1u), tc.wPeriodMax);
+				timeBeginPeriod(timerResolution);
+			}
+
+			LARGE_INTEGER duration;
+			duration.QuadPart = (LONGLONG)(-10000000LL * seconds);
+			auto timer = CreateWaitableTimer(nullptr, 1, nullptr);
+			SetWaitableTimer(timer, &duration, 0, nullptr, nullptr, 0);
+			WaitForSingleObject(timer, INFINITE);
+		#endif
 	}
 
 	// Cube vertices

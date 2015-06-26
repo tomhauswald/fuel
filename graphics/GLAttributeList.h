@@ -9,7 +9,6 @@
 #ifndef GRAPHICS_GLATTRIBUTELIST_H_
 #define GRAPHICS_GLATTRIBUTELIST_H_
 
-#include "GLWindow.h"
 #include "GLBuffer.h"
 #include <memory>
 #include <vector>
@@ -26,7 +25,7 @@ namespace fuel
 		GLuint m_ID;
 
 		// Underlying array buffer (VBO)
-		unique_ptr<GLBuffer> m_pArrayBuffer;
+		std::unique_ptr<GLBuffer> m_pArrayBuffer;
 
 	public:
 		/**
@@ -69,7 +68,7 @@ namespace fuel
 		 *      	The data as readonly vector reference.
 		 */
 		template<typename DATATYPE, GLuint GROUPSIZE>
-		void write(GLenum usage, GLenum datatype, const vector<DATATYPE> &data)
+		void write(GLenum usage, GLenum datatype, const std::vector<DATATYPE> &data)
 		{
 			GLBuffer::bind(*m_pArrayBuffer);
 			m_pArrayBuffer->write(usage, data);

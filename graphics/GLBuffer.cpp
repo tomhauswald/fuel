@@ -6,10 +6,13 @@
  *****************************************************************
  *****************************************************************/
 
+#include <iostream>
 #include "GLBuffer.h"
 
 namespace fuel
 {
+	using namespace std;
+
 	GLBuffer::GLBuffer(GLenum target)
 		:m_ID(GL_NONE), m_target(target), m_bound(false)
 	{

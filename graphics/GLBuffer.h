@@ -9,7 +9,7 @@
 #ifndef GRAPHICS_GLBUFFER_H_
 #define GRAPHICS_GLBUFFER_H_
 
-#include "GLWindow.h"
+#include "GLCalls.h"
 #include <vector>
 
 namespace fuel
@@ -103,7 +103,7 @@ namespace fuel
 		 *        Data as readonly vector reference.
 		 */
 		template<typename T>
-		void write(GLenum usage, const vector<T> &data)
+		void write(GLenum usage, const std::vector<T> &data)
 		{
 			// Ensure the buffer is bound
 			if(!m_bound){ GLBuffer::bind(*this); }

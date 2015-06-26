@@ -6,11 +6,14 @@
  *****************************************************************
  *****************************************************************/
 
+#include <iostream>
 #include "GLVertexArray.h"
 #include "../core/Util.h"
 
 namespace fuel
 {
+	using namespace std;
+
 	GLVertexArray::GLVertexArray(uint8_t attributeListCount)
 		:m_ID(GL_NONE), m_attributeLists({})
 	{

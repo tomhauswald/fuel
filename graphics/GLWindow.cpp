@@ -121,6 +121,12 @@ namespace fuel
 		glfwSwapBuffers( m_pWindow );
 	}
 
+	void GLWindow::renderGeometry(GLVertexArray &vao, unsigned verts, GLenum primitive)
+	{
+		GLVertexArray::bind(vao);
+		glDrawArrays(primitive, 0, verts);
+	}
+
 	GLWindow::~GLWindow(void)
 	{
 		if(m_pWindow != nullptr)

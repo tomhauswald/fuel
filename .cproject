@@ -64,11 +64,12 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.debug.334596264" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.debug"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.exe.debug.568394830" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.exe.debug">
 								<option id="gnu.cpp.link.option.libs.257733613" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glew32"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glfw3"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="opengl32"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="gdi32"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glew32.dll"/>
+									<listOptionValue builtIn="false" value="glew32"/>
+									<listOptionValue builtIn="false" value="winmm"/>
+									<listOptionValue builtIn="false" value="glfw3"/>
+									<listOptionValue builtIn="false" value="opengl32"/>
+									<listOptionValue builtIn="false" value="gdi32"/>
+									<listOptionValue builtIn="false" value="glew32.dll"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.446538017" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/lib}&quot;"/>
@@ -143,13 +144,12 @@
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release.1081323956" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.exe.release.1591650153" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.exe.release">
 								<option id="gnu.cpp.link.option.libs.2031600739" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="glew32"/>
+									<listOptionValue builtIn="false" value="winmm"/>
 									<listOptionValue builtIn="false" value="glfw3"/>
 									<listOptionValue builtIn="false" value="opengl32"/>
 									<listOptionValue builtIn="false" value="gdi32"/>
-									<listOptionValue builtIn="false" value="user32"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glew"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glew32"/>
-									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="glew32.dll"/>
+									<listOptionValue builtIn="false" value="glew32.dll"/>
 								</option>
 								<option id="gnu.cpp.link.option.paths.546698681" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/fuel/lib/glfw-3.1.1/lib}&quot;"/>
@@ -186,6 +186,13 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/fuel"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/fuel"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

@@ -9,7 +9,7 @@
 #ifndef GRAPHICS_GLVERTEXARRAY_H_
 #define GRAPHICS_GLVERTEXARRAY_H_
 
-#include "GLWindow.h"
+#include "GLCalls.h"
 #include "GLAttributeList.h"
 #include <memory>
 
@@ -25,7 +25,7 @@ namespace fuel
 			GLuint m_ID;
 
 			// Stored attribute lists
-			vector<GLAttributeList *> m_attributeLists;
+			std::vector<GLAttributeList *> m_attributeLists;
 
 		public:
 			/**
