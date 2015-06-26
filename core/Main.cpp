@@ -18,92 +18,56 @@
 
 using namespace fuel;
 
+class TestGame : public Game
+{
+private:
+	// Cube vertex array
+	unique_ptr<GLVertexArray> m_pCubeVertexArray;
+
+	// Cube index buffer
+	unique_ptr<GLBuffer> m_pCubeIndexBuffer;
+
+	// Point lights
+	vector<PointLight> m_pointLights;
+
+public:
+	/**
+	 * Load resources and setup scene.
+	 */
+	void setup(void) override
+	{
+		// Load textures
+		getTextureManager().add("grass", "res/textures/grass.png");
+
+		// Setup cube vertices
+		m_pCubeVertexArray = make_unique<GLVertexArray>(3);
+		GLVertexArray::bind(*m_pCubeVertexArray);
+		m_pCubeVertexArray->getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
+		m_pCubeVertexArray->getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_NORMALS);
+		m_pCubeVertexArray->getAttributeList(2).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT, CUBE_TEXTURE_COORDS);
+		GLVertexArray::unbind();
+
+		// Setup cube indices
+		m_pCubeIndexBuffer = make_unique<GLBuffer>(GL_ELEMENT_ARRAY_BUFFER);
+		GLBuffer::bind(*m_pCubeIndexBuffer);
+		m_pCubeIndexBuffer->write(GL_STATIC_DRAW, CUBE_INDICES);
+		GLBuffer::unbind(*m_pCubeIndexBuffer);
+	}
+};
+
 int main(int argc, char **argv)
 {
-	Game game;
-	game.run();
-
-	return 0;
+	TestGame g;
+	g.run();
 }
 
 /*
 
-	// Cube index buffer
-	GLBuffer cubeIndexBuffer(GL_ELEMENT_ARRAY_BUFFER);
-	cubeIndexBuffer.write(GL_STATIC_DRAW, CUBE_INDICES);
-	GLBuffer::unbind(cubeIndexBuffer);
 
-	// Cube vertex array
-	GLVertexArray cubeVertexArray(3);
-	GLVertexArray::bind(cubeVertexArray);
-	cubeVertexArray.getAttributeList(0).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_VERTICES);
-	cubeVertexArray.getAttributeList(1).write<float, 3>(GL_STATIC_DRAW, GL_FLOAT, CUBE_NORMALS);
-	cubeVertexArray.getAttributeList(2).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT, CUBE_TEXTURE_COORDS);
-	GLVertexArray::unbind();
 
-	// Deferred shader (targeting multiple output textures: gbuffer)
-	GLShaderProgram deferredShader;
-	deferredShader.setShader(EGLShaderType::VERTEX,   		"res/glsl/deferred.vert");
-	deferredShader.setShader(EGLShaderType::FRAGMENT, 		"res/glsl/deferred.frag");
-	deferredShader.bindVertexAttribute(0, "vPosition");
-	deferredShader.bindVertexAttribute(1, "vNormal");
-	deferredShader.bindVertexAttribute(2, "vTexCoord");
-	deferredShader.link();
-	deferredShader.registerUniform("uWVP");
-	deferredShader.registerUniform("uWorld");
-	deferredShader.registerUniform("uDiffuseTexture");
-	deferredShader.getUniform("uDiffuseTexture").set(0);
 
-	// Ambient light shader
-	GLShaderProgram ambientLightShader;
-	ambientLightShader.setShader(EGLShaderType::VERTEX,   	"res/glsl/fullscreen.vert");
-	ambientLightShader.setShader(EGLShaderType::FRAGMENT, 	"res/glsl/ambient.frag");
-	ambientLightShader.bindVertexAttribute(0, "vPosition");
-	ambientLightShader.bindVertexAttribute(1, "vTexCoord");
-	ambientLightShader.link();
-	ambientLightShader.registerUniform("uDiffuseTexture");
-	ambientLightShader.registerUniform("uColor");
-	ambientLightShader.getUniform("uDiffuseTexture").set(0);
-	ambientLightShader.getUniform("uColor").set(glm::vec3(1.0f, 0.9f, 0.5f) / 16.0f);
 
-	// Directional light shader
-	GLShaderProgram dirLightShader;
-	dirLightShader.setShader(EGLShaderType::VERTEX,			"res/glsl/fullscreen.vert");
-	dirLightShader.setShader(EGLShaderType::FRAGMENT,		"res/glsl/directional.frag");
-	dirLightShader.bindVertexAttribute(0, "vPosition");
-	dirLightShader.bindVertexAttribute(1, "vTexCoord");
-	dirLightShader.link();
-	dirLightShader.registerUniform("uDiffuseTexture");
-	dirLightShader.registerUniform("uNormalTexture");
-	dirLightShader.registerUniform("uColor");
-	dirLightShader.registerUniform("uDirection");
-	dirLightShader.getUniform("uDiffuseTexture").set(0);
-	dirLightShader.getUniform("uNormalTexture").set(2);
-	dirLightShader.getUniform("uColor").set(glm::vec3(1.0f, 0.9f, 0.5f) / 1.75f);
-	dirLightShader.getUniform("uDirection").set(glm::normalize(glm::vec3(1, -1, -1)));
 
-	// Point light shader
-	GLShaderProgram pointLightShader;
-	pointLightShader.setShader(EGLShaderType::VERTEX,   	"res/glsl/fullscreen.vert");
-	pointLightShader.setShader(EGLShaderType::FRAGMENT, 	"res/glsl/pointlight.frag");
-	pointLightShader.bindVertexAttribute(0, "vPosition");
-	pointLightShader.bindVertexAttribute(1, "vTexCoord");
-	pointLightShader.link();
-	pointLightShader.registerUniform("uViewProjection");
-	pointLightShader.registerUniform("uCameraPosition");
-	pointLightShader.registerUniform("uDiffuseTexture");
-	pointLightShader.registerUniform("uPositionTexture");
-	pointLightShader.registerUniform("uNormalTexture");
-	pointLightShader.registerUniform("uPosition");
-	pointLightShader.registerUniform("uColor");
-	pointLightShader.registerUniform("uRadius");
-	pointLightShader.registerUniform("uLinearAttenuation");
-	pointLightShader.registerUniform("uQuadraticAttenuation");
-	pointLightShader.getUniform("uDiffuseTexture").set(0);
-	pointLightShader.getUniform("uPositionTexture").set(1);
-	pointLightShader.getUniform("uNormalTexture").set(2);
-
-	srand(time(nullptr));
 	vector<PointLight> pointLights(3);
 	pointLights[0].position = {-2.5f, 0, 1.5f};
 	pointLights[0].color = {1, 0, 0};
@@ -249,24 +213,6 @@ int main(int argc, char **argv)
 	}
 
 	return 0;
-}
-
-void prepareGeometryPass(void)
-{
-	//Disable blending, enable depth
-	glDepthMask(GL_TRUE);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-}
-
-void prepareLightPass(void)
-{
-	//Disable depth, enable blending
-	glDepthMask(GL_FALSE);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE);
 }
 
 */

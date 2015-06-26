@@ -10,7 +10,7 @@
 
 #define GAME_RESOLUTION_X 		1600
 #define GAME_RESOLUTION_Y  		900
-#define GAME_FULLSCREEN		 	0
+#define GAME_FULLSCREEN		 	1
 #define GAME_CAMERA_POSITION	{0, 0, 5}
 
 namespace fuel
@@ -21,6 +21,9 @@ namespace fuel
 		 m_deferredFBO(GAME_RESOLUTION_X, GAME_RESOLUTION_Y),
 		 m_fullscreenQuadVAO(2)
 	{
+		// Seed RNG
+		srand(time(nullptr));
+
 		// Move camera
 		m_camera.getTransform().setPosition(GAME_CAMERA_POSITION);
 
@@ -34,10 +37,63 @@ namespace fuel
 		GLFramebuffer::unbind();
 
 		// Load default shaders
-		m_shaderMgr.add("deferred",		"res/glsl/deferred.vert", 		"res/glsl/deferred.frag");
-		m_shaderMgr.add("ambient",  	"res/glsl/fullscreen.vert", 	"res/glsl/ambient.frag");
-		m_shaderMgr.add("directional", 	"res/glsl/fullscreen.vert", 	"res/glsl/directional.frag");
-		m_shaderMgr.add("pointlight", 	"res/glsl/fullscreen.vert", 	"res/glsl/pointlight.frag");
+		// Deferred shader (targeting multiple output textures: gbuffer)
+		m_shaderMgr.add("deferred", "res/glsl/deferred.vert", "res/glsl/deferred.frag");
+		auto &deferredShader = m_shaderMgr.get("deferred");
+		deferredShader.bindVertexAttribute(0, "vPosition");
+		deferredShader.bindVertexAttribute(1, "vNormal");
+		deferredShader.bindVertexAttribute(2, "vTexCoord");
+		deferredShader.link();
+		deferredShader.registerUniform("uWVP");
+		deferredShader.registerUniform("uWorld");
+		deferredShader.registerUniform("uDiffuseTexture");
+		deferredShader.getUniform("uDiffuseTexture").set(0);
+
+		// Ambient ligh shader
+		m_shaderMgr.add("ambient", "res/glsl/fullscreen.vert", "res/glsl/ambient.frag");
+		auto &ambientLightShader = m_shaderMgr.get("ambient");
+		ambientLightShader.bindVertexAttribute(0, "vPosition");
+		ambientLightShader.bindVertexAttribute(1, "vTexCoord");
+		ambientLightShader.link();
+		ambientLightShader.registerUniform("uDiffuseTexture");
+		ambientLightShader.registerUniform("uColor");
+		ambientLightShader.getUniform("uDiffuseTexture").set(0);
+		ambientLightShader.getUniform("uColor").set(glm::vec3(1.0f, 0.9f, 0.5f) / 16.0f);
+
+		// Directional light shader
+		m_shaderMgr.add("directional", "res/glsl/fullscreen.vert", "res/glsl/directional.frag");
+		auto &dirLightShader = m_shaderMgr.get("directional");
+		dirLightShader.bindVertexAttribute(0, "vPosition");
+		dirLightShader.bindVertexAttribute(1, "vTexCoord");
+		dirLightShader.link();
+		dirLightShader.registerUniform("uDiffuseTexture");
+		dirLightShader.registerUniform("uNormalTexture");
+		dirLightShader.registerUniform("uColor");
+		dirLightShader.registerUniform("uDirection");
+		dirLightShader.getUniform("uDiffuseTexture").set(0);
+		dirLightShader.getUniform("uNormalTexture").set(2);
+		dirLightShader.getUniform("uColor").set(glm::vec3(1.0f, 0.9f, 0.5f) / 1.75f);
+		dirLightShader.getUniform("uDirection").set(glm::normalize(glm::vec3(1, -1, -1)));
+
+		// Point light shader
+		m_shaderMgr.add("pointlight", "res/glsl/fullscreen.vert", "res/glsl/pointlight.frag");
+		auto &pointLightShader = m_shaderMgr.get("pointlight");
+		pointLightShader.bindVertexAttribute(0, "vPosition");
+		pointLightShader.bindVertexAttribute(1, "vTexCoord");
+		pointLightShader.link();
+		pointLightShader.registerUniform("uViewProjection");
+		pointLightShader.registerUniform("uCameraPosition");
+		pointLightShader.registerUniform("uDiffuseTexture");
+		pointLightShader.registerUniform("uPositionTexture");
+		pointLightShader.registerUniform("uNormalTexture");
+		pointLightShader.registerUniform("uPosition");
+		pointLightShader.registerUniform("uColor");
+		pointLightShader.registerUniform("uRadius");
+		pointLightShader.registerUniform("uLinearAttenuation");
+		pointLightShader.registerUniform("uQuadraticAttenuation");
+		pointLightShader.getUniform("uDiffuseTexture").set(0);
+		pointLightShader.getUniform("uPositionTexture").set(1);
+		pointLightShader.getUniform("uNormalTexture").set(2);
 
 		// Setup fullscreen quad VAO
 		GLVertexArray::bind(m_fullscreenQuadVAO);
@@ -58,18 +114,20 @@ namespace fuel
 		GLVertexArray::unbind();
 	}
 
-	void Game::init(void)
-	{
-		;;
-	}
-
 	void Game::update(void)
 	{
+		// Calculate passed time in seconds
+		static float lastTime = static_cast<float>(glfwGetTime());
+		float time 			  = static_cast<float>(glfwGetTime());
+		float dt 			  = time - lastTime;
+		lastTime 			  = time;
+
 		if(m_keyboard.wasKeyReleased(GLFW_KEY_ESCAPE))
 			m_window.close();
 		m_keyboard.update();
 
 		// Update scene
+		if(m_pSceneRoot) m_pSceneRoot->update(dt);
 	}
 
 	void Game::prepareGeometryPasses(void)
@@ -100,14 +158,15 @@ namespace fuel
 
 	void Game::render(void)
 	{
+		// Prepare geometry passes
 		m_window.prepare();
 		this->prepareGeometryPasses();
 		m_shaderMgr.get("deferred").use();
 
-		///
-		/// Render scene geometry passes
-		///
+		// Render scene
+		if(m_pSceneRoot) m_pSceneRoot->render();
 
+		// Prepare fullscreen passes
 		this->prepareFullscreenPasses();
 
 		// Ambient light pass
@@ -122,10 +181,12 @@ namespace fuel
 		m_shaderMgr.get("pointlight").use();
 		this->renderFullscreenQuad();
 
+		// Render GUI passes
+		this->prepareGeometryPasses();
+		if(m_pSceneRoot) m_pSceneRoot->gui();
+
 		if(true) // Show gbuffer textures
 		{
-			this->prepareGeometryPasses();
-
 			// Render downscales gbuffer textures as overlay
 			static constexpr uint16_t previewWidth = 160, previewHeight = 90;
 			m_deferredFBO.showAttachmentContent("diffuse",    		 0, previewHeight, previewWidth, previewHeight);
@@ -134,11 +195,6 @@ namespace fuel
 		}
 
 		m_window.display();
-	}
-
-	Game::~Game(void)
-	{
-
 	}
 }
 

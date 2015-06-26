@@ -11,12 +11,14 @@
 
 #include <cstdlib>
 #include "Util.h"
-#include "ShaderManager.h"
+#include "../mgmt/ShaderManager.h"
+#include "../mgmt/TextureManager.h"
 #include "../graphics/GLWindow.h"
 #include "../graphics/GLVertexArray.h"
 #include "../graphics/GLFramebuffer.h"
 #include "../graphics/Camera.h"
 #include "../input/Keyboard.h"
+#include "GameComponent.h"
 
 namespace fuel
 {
@@ -38,8 +40,14 @@ namespace fuel
 		// Shader program manager
 		ShaderManager m_shaderMgr;
 
+		// Texture manager
+		TextureManager m_textureMgr;
+
 		// Fullscreen quad vertices
 		GLVertexArray m_fullscreenQuadVAO;
+
+		// Scene root
+		shared_ptr<GameComponent> m_pSceneRoot;
 
 		/**
 		 * Updates the current scene.
@@ -83,7 +91,7 @@ namespace fuel
 		/**
 		 * Perfoms any custom initialization logic.
 		 */
-		virtual void init(void);
+		virtual void setup(void) = 0;
 
 		/**
 		 * Runs the game.
@@ -91,7 +99,7 @@ namespace fuel
 		inline void run(void)
 		{
 			// Initialize
-			this->init();
+			this->setup();
 
 			// Main loop
 			while(!m_window.closed())
@@ -109,13 +117,6 @@ namespace fuel
 		inline GLWindow &getWindow(void){ return m_window; }
 
 		/**
-		 * Returns the window.
-		 *
-		 * @return Window.
-		 */
-		inline const GLWindow &getWindow(void) const { return m_window; }
-
-		/**
 		 * Returns the camera.
 		 *
 		 * @return Camera.
@@ -123,16 +124,45 @@ namespace fuel
 		inline Camera &getCamera(void){ return m_camera; }
 
 		/**
-		 * Returns the camera.
+		 * Returns the keyboard.
 		 *
-		 * @return Camera.
+		 * @return Keyboard.
 		 */
-		inline const Camera &getCamera(void) const { return m_camera; }
+		inline Keyboard &getKeyboard(void){ return m_keyboard; }
+
+		/**
+		 * Returns the texture manager.
+		 *
+		 * @return Texture manager.
+		 */
+		inline TextureManager &getTextureManager(void){ return m_textureMgr; }
+
+		/**
+		 * Returns the shader manager.
+		 *
+		 * @return Shader manager.
+		 */
+		inline ShaderManager &getShaderManager(void){ return m_shaderMgr; }
+
+		/**
+		 * Returns the scene root game object.
+		 *
+		 * @return Scene root.
+		 */
+		inline shared_ptr<GameComponent> &getSceneRoot(void){ return m_pSceneRoot; }
+
+		/**
+		 * Sets the scene root game object.
+		 *
+		 * @param root
+		 * 		The new scene root.
+		 */
+		inline void setSceneRoot(shared_ptr<GameComponent> &root){ m_pSceneRoot = root; }
 
 		/**
 		 * Releases any resources.
 		 */
-		virtual ~Game(void);
+		virtual ~Game(void) = default;
 	};
 }
 

@@ -9,7 +9,7 @@
 #ifndef CORE_RESOURCEMANAGER_H_
 #define CORE_RESOURCEMANAGER_H_
 
-#include "Util.h"
+#include "../core/Util.h"
 #include <map>
 
 namespace fuel
