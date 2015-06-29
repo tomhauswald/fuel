@@ -7,11 +7,13 @@
  *****************************************************************/
 
 #include "GLWindow.h"
+#include "../core/Util.h"
 
 namespace fuel
 {
 	GLWindow::GLWindow(const GLWindowSettings &settings)
-		:m_pWindow(nullptr)
+		:m_pWindow(nullptr),
+		 m_pFullscreenQuadVAO(nullptr)
 	{
 		// Try to initialize GLFW
 		if( glfwInit() != GL_TRUE )
@@ -74,6 +76,25 @@ namespace fuel
 		glEnable(GL_TEXTURE_2D);
 
 		glViewport(0, 0, settings.width, settings.height);
+
+		// Setup fullscreen quad VAO
+		m_pFullscreenQuadVAO = make_unique<GLVertexArray>(2);
+		GLVertexArray::bind(*m_pFullscreenQuadVAO);
+		m_pFullscreenQuadVAO->getAttributeList(0).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
+		{
+			-1.0f, -1.0f,
+			 1.0f, -1.0f,
+			 1.0f,  1.0f,
+			-1.0f,  1.0f
+		});
+		m_pFullscreenQuadVAO->getAttributeList(1).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
+		{
+			 0.0f, 0.0f,
+			 1.0f, 0.0f,
+			 1.0f, 1.0f,
+			 0.0f, 1.0f
+		});
+		GLVertexArray::unbind();
 	}
 
 	uint16_t GLWindow::getWidth(void) const

@@ -8,18 +8,17 @@
 
 #include "Game.h"
 
-#define GAME_RESOLUTION_X 		1600
-#define GAME_RESOLUTION_Y  		900
-#define GAME_FULLSCREEN		 	0
+#define RESOLUTION_X		 	1440
+#define RESOLUTION_Y 			810
+#define FULLSCREEN				0
 
 namespace fuel
 {
 	Game::Game(void)
-		:m_window({GAME_RESOLUTION_X, GAME_RESOLUTION_Y, GAME_FULLSCREEN}),
+		:m_window({RESOLUTION_X, RESOLUTION_Y, FULLSCREEN}),
 		 m_keyboard(m_window),
-		 m_projection(glm::perspective(45.0f, GAME_RESOLUTION_X / (float)GAME_RESOLUTION_Y, 0.1f, 100.0f)),
-		 m_deferredFBO(GAME_RESOLUTION_X, GAME_RESOLUTION_Y),
-		 m_fullscreenQuadVAO(2),
+		 m_projection(glm::perspective(45.0f, RESOLUTION_X / (float)RESOLUTION_Y, 0.1f, 100.0f)),
+		 m_deferredFBO(RESOLUTION_X, RESOLUTION_Y),
 		 m_pSceneRoot(nullptr),
 		 m_sleepTime(0.0f),
 		 m_updateTime(0.0f),
@@ -107,24 +106,6 @@ namespace fuel
 			sh.getUniform("uPositionTexture").set(1);
 			sh.getUniform("uNormalTexture").set(2);
 		}
-
-		// Setup fullscreen quad VAO
-		GLVertexArray::bind(m_fullscreenQuadVAO);
-		m_fullscreenQuadVAO.getAttributeList(0).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
-		{
-			-1.0f, -1.0f,
-			 1.0f, -1.0f,
-			 1.0f,  1.0f,
-			-1.0f,  1.0f
-		});
-		m_fullscreenQuadVAO.getAttributeList(1).write<float, 2>(GL_STATIC_DRAW, GL_FLOAT,
-		{
-			 0.0f, 0.0f,
-			 1.0f, 0.0f,
-			 1.0f, 1.0f,
-			 0.0f, 1.0f
-		});
-		GLVertexArray::unbind();
 	}
 
 	void Game::update(void)
@@ -210,7 +191,7 @@ namespace fuel
 		this->prepareGeometryPasses();
 
 		// Render scene
-		if(m_pSceneRoot) m_pSceneRoot->render(*this);
+		if(m_pSceneRoot) m_pSceneRoot->geometryPass(*this);
 
 		// Determine geometry rendering time
 		cout << "Geometry passes:\t"
@@ -222,26 +203,13 @@ namespace fuel
 
 		startTime += m_geomRenderTime;
 
-		// Prepare fullscreen passes
+		// Fullscreen passes
 		this->prepareFullscreenPasses();
-
-		// Ambient light pass
-		m_shaderMgr.get("ambient").use();
-		this->renderFullscreenQuad();
-
-		// Directional light pass
-		m_shaderMgr.get("directional").use();
-		for(; false; )
-			this->renderFullscreenQuad();
-
-		// Point light passes
-		m_shaderMgr.get("pointlight").use();
-		for(; false; )
-			this->renderFullscreenQuad();
+		if(m_pSceneRoot) m_pSceneRoot->fullscreenPass(*this);
 
 		// GUI passes
 		prepareGUIPasses();
-		if(m_pSceneRoot) m_pSceneRoot->gui(*this);
+		if(m_pSceneRoot) m_pSceneRoot->guiPass(*this);
 
 		if(true) // Show gbuffer textures
 		{

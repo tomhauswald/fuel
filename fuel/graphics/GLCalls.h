@@ -17,10 +17,16 @@
  */
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#ifndef __DEBUG__
+	#define __NO_INLINE__
+#endif
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/random.hpp>
+#undef __NO_INLINE__
+
 constexpr float PI = 3.14159265359f;
 
 #endif // GRAPHICS_GLCALLS_H_

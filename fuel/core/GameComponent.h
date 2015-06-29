@@ -82,13 +82,22 @@ namespace fuel
 		virtual void update(Game &game, float dt);
 
 		/**
-		 * Renders this game component and all its children.
+		 * Renders the geometry of this game component and all its children.
 		 * This is called each frame.
 		 *
 		 * @param game
 		 * 		Parent game.
 		 */
-		virtual void render(Game &game);
+		virtual void geometryPass(Game &game);
+
+		/**
+		 * Renders the fullscreen passes of this game component and all its children.
+		 * This is called each frame after the geometry passes.
+		 *
+		 * @param game
+		 * 		Parent game.
+		 */
+		virtual void fullscreenPass(Game &game);
 
 		/**
 		 * Renders any overlays that need to be drawn after
@@ -97,7 +106,7 @@ namespace fuel
 		 * @param game
 		 * 		Parent game.
 		 */
-		virtual void gui(Game &game);
+		virtual void guiPass(Game &game);
 
 		/**
 		 * Destroys all children.

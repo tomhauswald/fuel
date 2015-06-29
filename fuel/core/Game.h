@@ -46,9 +46,6 @@ namespace fuel
 		// Texture manager
 		TextureManager m_textureMgr;
 
-		// Fullscreen quad vertices
-		GLVertexArray m_fullscreenQuadVAO;
-
 		// Scene root
 		GameComponent *m_pSceneRoot;
 
@@ -93,11 +90,6 @@ namespace fuel
 		 * Binds the deferred FBO for reading and enables depth.
 		 */
 		void prepareGUIPasses(void);
-
-		/**
-		 * Renders a fullscreen quad.
-		 */
-		inline void renderFullscreenQuad(void){ m_window.renderGeometry(m_fullscreenQuadVAO, 4, GL_QUADS); }
 
 	public:
 		/**

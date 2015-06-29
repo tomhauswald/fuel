@@ -9,13 +9,20 @@
 #ifndef CORE_UTIL_H_
 #define CORE_UTIL_H_
 
+#include <iostream>
 #include <memory>
 #include <type_traits>
 #include <utility>
 #include <cstdio>
 #include <vector>
+
+#ifndef __DEBUG__
+#ifndef __NO_INLINE__
+#define __NO_INLINE__
+#endif
+#endif
 #include <cmath>
-#include <iostream>
+#undef __NO_INLINE__
 
 #ifdef __WIN32__
 #include <windows.h>

@@ -26,6 +26,9 @@ namespace fuel
 		//Underlying GLFW window
 		GLFWwindow *m_pWindow;
 
+		// Fullscreen quad vertices
+		std::unique_ptr<GLVertexArray> m_pFullscreenQuadVAO;
+
 	public:
 		/**
 		 * Instantiates a new OpenGL window using the given settings.
@@ -107,6 +110,11 @@ namespace fuel
 		 *		Primitive type.
 		 */
 		void renderGeometry(GLVertexArray &vao, unsigned verts, GLenum primitive = GL_TRIANGLES);
+
+		/**
+		 * Renders a fullscreen quad.
+		 */
+		inline void renderFullscreenQuad(void){ renderGeometry(*m_pFullscreenQuadVAO, 4, GL_QUADS); }
 
 		/**
 		 * Prepares the window to draw the next frame.

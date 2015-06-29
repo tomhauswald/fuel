@@ -19,16 +19,22 @@ namespace fuel
 			child.second->update(game, dt);
 	}
 
-	void GameComponent::render(Game &game)
+	void GameComponent::geometryPass(Game &game)
 	{
 		for(auto &child : m_pChildren)
-			child.second->render(game);
+			child.second->geometryPass(game);
 	}
 
-	void GameComponent::gui(Game &game)
+	void GameComponent::fullscreenPass(Game &game)
 	{
 		for(auto &child : m_pChildren)
-			child.second->gui(game);
+			child.second->fullscreenPass(game);
+	}
+
+	void GameComponent::guiPass(Game &game)
+	{
+		for(auto &child : m_pChildren)
+			child.second->guiPass(game);
 	}
 }
 
