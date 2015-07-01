@@ -97,17 +97,32 @@ namespace fuel
 	{
 		if(target & READ)
 		{
-			// Enable reading from color attachment textures
-			for (unsigned int i = 0 ; i < fbo.m_colorAttachmentCount; i++)
+			// Next texture unit to use
+			// Layout in the end will be: (COLOR[0], ..., COLOR[N], DEPTH)
+			GLuint textureUnit = 0;
+
+			for(; textureUnit < fbo.m_colorAttachmentCount; ++textureUnit)
 			{
-				// Bind textures
+				// Go through all attachment textures
 				for(auto iter = fbo.m_attachments.begin(); iter != fbo.m_attachments.end(); ++iter)
 				{
-					if(iter->second.attachmentSlot == GL_COLOR_ATTACHMENT0 + i)
+					// Bind color textures
+					if(iter->second.attachmentSlot == GL_COLOR_ATTACHMENT0 + textureUnit)
 					{
-						GLTexture::bind(i, *(iter->second.pTexture));
-						continue;
+						GLTexture::bind(textureUnit, *(iter->second.pTexture));
+						break;
 					}
+				}
+			}
+
+			// Go through all attachment textures
+			for(auto iter = fbo.m_attachments.begin(); iter != fbo.m_attachments.end(); ++iter)
+			{
+				// Bind depth texture
+				if(iter->second.attachmentSlot == GL_DEPTH_ATTACHMENT)
+				{
+					GLTexture::bind(fbo.m_colorAttachmentCount, *(iter->second.pTexture));
+					break;
 				}
 			}
 		}

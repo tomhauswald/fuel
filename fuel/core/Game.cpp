@@ -31,81 +31,14 @@ namespace fuel
 		// Move camera
 		m_camera.getTransform().setPosition({0, 0, 5});
 
-		// Setup deferred framebuffer
+		// Setup default deferred framebuffer (diffuse, position & normal channels, depth)
 		GLFramebuffer::bind(m_deferredFBO);
-		m_deferredFBO.attach("depth",    GL_DEPTH_COMPONENT32F);
 		m_deferredFBO.attach("diffuse",  GL_RGB32F);
 		m_deferredFBO.attach("position", GL_RGB32F);
 		m_deferredFBO.attach("normal",   GL_RGB32F);
+		m_deferredFBO.attach("depth",    GL_DEPTH_COMPONENT32F);
 		m_deferredFBO.setDrawAttachments({"diffuse", "position", "normal"});
 		GLFramebuffer::unbind();
-
-		// Load default shaders
-		// Deferred shader (targeting multiple output textures: gbuffer)
-		m_shaderMgr.add("textured", "res/glsl/geometry.vert", "res/glsl/textured.frag");
-		{
-			auto &sh = m_shaderMgr.get("textured");
-			sh.bindVertexAttribute(0, "vPosition");
-			sh.bindVertexAttribute(1, "vNormal");
-			sh.bindVertexAttribute(2, "vTexCoord");
-			sh.link();
-			sh.registerUniform("uWVP");
-			sh.registerUniform("uWorld");
-			sh.registerUniform("uDiffuseTexture");
-			sh.getUniform("uDiffuseTexture").set(0);
-		}
-
-		// Ambient ligh shader
-		m_shaderMgr.add("ambient", "res/glsl/fullscreen.vert", "res/glsl/ambient.frag");
-		{
-			auto &sh = m_shaderMgr.get("ambient");
-			sh.bindVertexAttribute(0, "vPosition");
-			sh.bindVertexAttribute(1, "vTexCoord");
-			sh.link();
-			sh.registerUniform("uDiffuseTexture");
-			sh.registerUniform("uColor");
-			sh.getUniform("uDiffuseTexture").set(0);
-			sh.getUniform("uColor").set(glm::vec3(1.0f, 0.9f, 0.5f) / 16.0f);
-		}
-
-		// Directional light shader
-		m_shaderMgr.add("directional", "res/glsl/fullscreen.vert", "res/glsl/directional.frag");
-		{
-			auto &sh = m_shaderMgr.get("directional");
-			sh.bindVertexAttribute(0, "vPosition");
-			sh.bindVertexAttribute(1, "vTexCoord");
-			sh.link();
-			sh.registerUniform("uDiffuseTexture");
-			sh.registerUniform("uNormalTexture");
-			sh.registerUniform("uColor");
-			sh.registerUniform("uDirection");
-			sh.getUniform("uDiffuseTexture").set(0);
-			sh.getUniform("uNormalTexture").set(2);
-			sh.getUniform("uColor").set(glm::vec3(1.0f, 0.9f, 0.5f) / 1.75f);
-			sh.getUniform("uDirection").set(glm::normalize(glm::vec3(1, -1, -1)));
-		}
-
-		// Point light shader
-		m_shaderMgr.add("pointlight", "res/glsl/fullscreen.vert", "res/glsl/pointlight.frag");
-		{
-			auto &sh = m_shaderMgr.get("pointlight");
-			sh.bindVertexAttribute(0, "vPosition");
-			sh.bindVertexAttribute(1, "vTexCoord");
-			sh.link();
-			sh.registerUniform("uViewProjection");
-			sh.registerUniform("uCameraPosition");
-			sh.registerUniform("uDiffuseTexture");
-			sh.registerUniform("uPositionTexture");
-			sh.registerUniform("uNormalTexture");
-			sh.registerUniform("uPosition");
-			sh.registerUniform("uColor");
-			sh.registerUniform("uRadius");
-			sh.registerUniform("uLinearAttenuation");
-			sh.registerUniform("uQuadraticAttenuation");
-			sh.getUniform("uDiffuseTexture").set(0);
-			sh.getUniform("uPositionTexture").set(1);
-			sh.getUniform("uNormalTexture").set(2);
-		}
 	}
 
 	void Game::update(void)
@@ -208,7 +141,7 @@ namespace fuel
 		if(m_pSceneRoot) m_pSceneRoot->fullscreenPass(*this);
 
 		// GUI passes
-		prepareGUIPasses();
+		this->prepareGUIPasses();
 		if(m_pSceneRoot) m_pSceneRoot->guiPass(*this);
 
 		if(true) // Show gbuffer textures
