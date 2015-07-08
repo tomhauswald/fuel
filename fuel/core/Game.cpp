@@ -34,10 +34,9 @@ namespace fuel
 		// Setup default deferred framebuffer (diffuse, position & normal channels, depth)
 		GLFramebuffer::bind(m_deferredFBO);
 		m_deferredFBO.attach("diffuse",  GL_RGB32F);
-		m_deferredFBO.attach("position", GL_RGB32F);
 		m_deferredFBO.attach("normal",   GL_RGB32F);
 		m_deferredFBO.attach("depth",    GL_DEPTH_COMPONENT32F);
-		m_deferredFBO.setDrawAttachments({"diffuse", "position", "normal"});
+		m_deferredFBO.setDrawAttachments({"diffuse", "normal"});
 		GLFramebuffer::unbind();
 	}
 
@@ -148,9 +147,9 @@ namespace fuel
 		{
 			// Render downscales gbuffer textures as overlay
 			static constexpr uint16_t previewWidth = 160, previewHeight = 90;
-			m_deferredFBO.showAttachmentContent("diffuse",    		 0, previewHeight, previewWidth, previewHeight);
-			m_deferredFBO.showAttachmentContent("position",   		 0, 		    0, previewWidth, previewHeight);
-			m_deferredFBO.showAttachmentContent("normal",   previewWidth,  		    0, previewWidth, previewHeight);
+			m_deferredFBO.showAttachmentContent(m_window, "diffuse",    		0, 	 previewHeight, previewWidth, previewHeight);
+			m_deferredFBO.showAttachmentContent(m_window, "normal",   		  	0,  		     0, previewWidth, previewHeight);
+			m_deferredFBO.showAttachmentContent(m_window, "depth",   previewWidth,  		     0, previewWidth, previewHeight);
 		}
 
 		m_window.display();

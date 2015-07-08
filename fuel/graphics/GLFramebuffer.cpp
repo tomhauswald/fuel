@@ -22,21 +22,64 @@ namespace fuel
 		else
 		{
 			cout << "Generated OpenGL framebuffer: " << m_ID << endl;
+
+			m_blitShader = make_unique<GLShaderProgram>();
+			m_blitShader->setShader(EGLShaderType::VERTEX,   "res/glsl/fullscreen.vert");
+			m_blitShader->setShader(EGLShaderType::FRAGMENT, "res/glsl/blit.frag");
+			m_blitShader->bindVertexAttribute(0, "vPosition");
+			m_blitShader->bindVertexAttribute(1, "vTexCoord");
+			m_blitShader->link();
+			m_blitShader->registerUniform("uTextureUnit");
 		}
 	}
 
 	GLenum GLFramebuffer::getColorFormat(GLenum txrFormat)
 	{
-		if(txrFormat == GL_RGB32F || txrFormat == GL_RGB32UI) return GL_RGB;
-		if(txrFormat == GL_RGBA32F || txrFormat == GL_RGBA32UI) return GL_RGBA;
+		// RGB encoded
+		if(txrFormat == GL_RGB32F
+				|| txrFormat == GL_RGB32UI
+				|| txrFormat == GL_RGB16F
+				|| txrFormat == GL_RGB16UI)
+			return GL_RGB;
+
+		// RGBA encoded
+		if(txrFormat == GL_RGBA32F
+				|| txrFormat == GL_RGBA32UI
+				|| txrFormat == GL_RGBA16F
+				|| txrFormat == GL_RGBA16UI)
+			return GL_RGBA;
+
+		// Depth
 		if(txrFormat == GL_DEPTH_COMPONENT32F) return GL_DEPTH_COMPONENT;
+
+		// Unsupported
 		return GL_NONE;
 	}
 
 	GLenum GLFramebuffer::getDatatype(GLenum txrFormat)
 	{
-		if(txrFormat == GL_RGB32F || txrFormat == GL_RGBA32F || txrFormat == GL_DEPTH_COMPONENT32F) return GL_FLOAT;
-		if(txrFormat == GL_RGB32UI || txrFormat == GL_RGBA32UI) return GL_UNSIGNED_INT;
+		// 16-bit floating points
+		if(txrFormat == GL_RGB16F
+				|| txrFormat == GL_RGBA16F)
+			return GL_HALF_FLOAT;
+
+		// 32-bit floating points
+		if(txrFormat == GL_RGB32F
+				|| txrFormat == GL_RGBA32F
+				|| txrFormat == GL_DEPTH_COMPONENT32F)
+			return GL_FLOAT;
+
+		// 16-bit integers
+		if(txrFormat == GL_RGB16UI
+				|| txrFormat == GL_RGBA16UI)
+			return GL_UNSIGNED_SHORT;
+
+		// 32-bit integers
+		if(txrFormat == GL_RGB32UI
+				|| txrFormat == GL_RGBA32UI)
+			return GL_UNSIGNED_INT;
+
+		// Unsupported
 		return GL_NONE;
 	}
 
@@ -130,12 +173,29 @@ namespace fuel
 		if(target & DRAW) glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo.m_ID);
 	}
 
-	void GLFramebuffer::showAttachmentContent(const string &attachment, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+	void GLFramebuffer::showAttachmentContent(GLWindow &window, const string &attachment, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 	{
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_ID);
-		glReadBuffer(getAttachment(attachment).attachmentSlot);
-		glBlitFramebuffer(0, 0, m_width, m_height, x, y, x+w, y+h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, GL_NONE);
+		GLFramebuffer::bind(*this, READ);
+
+		GLint textureUnit = 0;
+		for(const auto &a : m_attachments)
+		{
+			if(a.second.name == attachment)
+			{
+				// Determine texture unit
+				textureUnit = a.second.attachmentSlot; // FBO attachment ID
+				if(textureUnit == GL_DEPTH_ATTACHMENT) textureUnit = m_colorAttachmentCount; // Depth attachment
+				else textureUnit -= GL_COLOR_ATTACHMENT0; // Color attachment
+				break;
+			}
+		}
+
+		glPushAttrib(GL_VIEWPORT_BIT);
+		glViewport(x, y, w, h);
+		m_blitShader->use();
+		m_blitShader->getUniform("uTextureUnit").set(textureUnit);
+		window.renderFullscreenQuad();
+		glPopAttrib();
 	}
 
 	GLFramebuffer::~GLFramebuffer(void)

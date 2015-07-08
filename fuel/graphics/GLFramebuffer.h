@@ -15,6 +15,7 @@
 #include <vector>
 #include "../core/Util.h"
 #include "GLTexture.h"
+#include "shaders/GLShaderProgram.h"
 
 namespace fuel
 {
@@ -60,6 +61,9 @@ namespace fuel
 
 		// Attachment information
 		map<string, GLFramebufferAttachment> m_attachments;
+
+		// Shader used to blit an attachment texture
+		unique_ptr<GLShaderProgram> m_blitShader;
 
 		/**
 		 * Number of color attachments bound
@@ -207,6 +211,9 @@ namespace fuel
 		/**
 		 * Renders the content of the specified attachment to the currently bound FBO.
 		 *
+		 * @param window
+		 * 		Window reference.
+		 *
 		 * @param attachment
 		 * 		Which attachment texture to show.
 		 *
@@ -222,7 +229,7 @@ namespace fuel
 		 * @param h
 		 * 		Destination height in pixels.
 		 */
-		void showAttachmentContent(const string &attachment, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+		void showAttachmentContent(GLWindow &window, const string &attachment, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 		/**
 		 * Deletes the attachment textures.

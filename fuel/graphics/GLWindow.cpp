@@ -74,6 +74,9 @@ namespace fuel
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 		glEnable(GL_TEXTURE_2D);
+		glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+		glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
+		glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 
 		glViewport(0, 0, settings.width, settings.height);
 
